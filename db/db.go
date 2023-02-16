@@ -25,7 +25,7 @@ type Dialect struct {
 
 func NewInstance() *Dialect {
 	var dia = new(Dialect)
-	err := dia.Create(common.Conf.Db.DbDriverSource)
+	err := dia.Create(common.Conf.DbConfig.DbDriverSource)
 	if err != nil {
 		log.Error("init db error: ", " error_message", err.Error())
 		os.Exit(0)
@@ -38,7 +38,7 @@ func (dia *Dialect) Create(driverSource string) error {
 	if driverSource == "" {
 		return errors.New("driver source can not be blank")
 	}
-	db, err := sql.Open(common.Conf.Db.DbDriverName,
+	db, err := sql.Open(common.Conf.DbConfig.DbDriverName,
 		driverSource)
 	if err != nil {
 		return err

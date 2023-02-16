@@ -15,6 +15,7 @@ func SplitAndTrim(input string) []string {
 }
 
 //Map2Struct convert map into struct
+//Field name must match
 func Map2Struct(src map[string]interface{}, destStrct interface{}) {
 	value := reflect.ValueOf(destStrct)
 	e := value.Elem()
@@ -27,7 +28,9 @@ func Map2Struct(src map[string]interface{}, destStrct interface{}) {
 			continue
 		}
 		mv := reflect.ValueOf(v)
+		// map value type
 		mvt := mv.Kind().String()
+		// struct field type
 		sft := f.Kind().String()
 		if sft != mvt {
 			if mvt == "string" && (strings.Index(sft, "int") != -1) {
@@ -67,25 +70,6 @@ func Map2Struct(src map[string]interface{}, destStrct interface{}) {
 				}
 			}
 
-			if mvt == "int" && (strings.Index(sft, "int") != -1) {
-				if sft == "int64" {
-					r := int64(v.(int))
-					f.Set(reflect.ValueOf(r))
-				} else if sft == "int32" {
-					r := int32(v.(int))
-					f.Set(reflect.ValueOf(r))
-				} else if sft == "uint64" {
-					r := uint64(v.(int))
-					f.Set(reflect.ValueOf(r))
-				} else if sft == "uint32" {
-					r := uint32(v.(int))
-					f.Set(reflect.ValueOf(r))
-				} else if sft == "uint" {
-					r := uint(v.(int))
-					f.Set(reflect.ValueOf(r))
-				}
-			}
-
 			// make string and string[] more friendly
 			if mvt == "string" && sft == "slice" {
 				_, ok := f.Interface().([]string)
@@ -94,9 +78,24 @@ func Map2Struct(src map[string]interface{}, destStrct interface{}) {
 				}
 			}
 
-			// make float64 and int64 more friendly
-			if mvt == "float64" && sft == "int64" {
-				f.Set(reflect.ValueOf(int64(v.(float64))))
+			// make string and float more friendly
+			if mvt == "string" && (strings.Index(sft, "float") != -1) {
+				i, err := strconv.ParseFloat(v.(string), 64)
+				if err == nil {
+					f.Set(reflect.ValueOf(i))
+				}
+			}
+
+			// make int to bool more friendly
+			if mvt == "string" && sft == "bool" {
+				i, err := strconv.Atoi(v.(string))
+				if err == nil {
+					if i == 1 {
+						f.Set(reflect.ValueOf(true))
+					} else if i == 0 {
+						f.Set(reflect.ValueOf(false))
+					}
+				}
 			}
 			continue
 		}

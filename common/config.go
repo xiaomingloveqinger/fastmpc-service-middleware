@@ -7,12 +7,20 @@ import (
 )
 
 type config struct {
-	Db DB
+	DbConfig    DBConfig
+	RedisConfig RedisConfig
 }
 
-type DB struct {
+type DBConfig struct {
 	DbDriverName   string
 	DbDriverSource string
+}
+
+type RedisConfig struct {
+	Addr     string
+	Password string
+	DB       int
+	PoolSize int
 }
 
 var (

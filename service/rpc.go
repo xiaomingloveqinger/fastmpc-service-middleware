@@ -1,6 +1,5 @@
 package service
 
-
 type ServiceMiddleWare struct{}
 
 func (service *ServiceMiddleWare) TestJsonrpc(rsv string, msg string) map[string]interface{} {
