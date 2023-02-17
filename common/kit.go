@@ -1,6 +1,13 @@
 package common
 
 import (
+	"encoding/hex"
+	"errors"
+	"github.com/anyswap/FastMulThreshold-DSA/crypto"
+	"github.com/anyswap/FastMulThreshold-DSA/crypto/secp256k1"
+	"github.com/anyswap/FastMulThreshold-DSA/smpc"
+	"github.com/anyswap/fastmpc-service-middleware/internal/common"
+	"github.com/fsn-dev/cryptoCoins/coins"
 	"reflect"
 	"strconv"
 	"strings"
@@ -101,4 +108,23 @@ func Map2Struct(src map[string]interface{}, destStrct interface{}) {
 		}
 		f.Set(mv)
 	}
+}
+
+func RecoverAddress(data, sig string) (string, error) {
+	hash := smpc.GetMsgSigHash([]byte(data))
+	public, err := crypto.SigToPub(hash, common.FromHex(sig))
+	if err != nil {
+		return "", err
+	}
+	pub := secp256k1.S256("EC256K1").Marshal(public.X, public.Y)
+	pubStr := hex.EncodeToString(pub)
+	h := coins.NewCryptocoinHandler("ETH")
+	if h == nil {
+		return "", errors.New("h is zero")
+	}
+	addr, err := h.PublicKeyToAddress(pubStr)
+	if err != nil {
+		return "", err
+	}
+	return addr, nil
 }
