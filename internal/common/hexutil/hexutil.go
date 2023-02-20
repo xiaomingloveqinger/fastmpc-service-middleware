@@ -67,7 +67,7 @@ func Decode(input string) ([]byte, error) {
 	b, err := hex.DecodeString(input[2:])
 	if err != nil {
 		err = mapError(err)
-		return b,err
+		return b, err
 	}
 	return b, nil
 }
@@ -98,7 +98,7 @@ func DecodeUint64(input string) (uint64, error) {
 	dec, err := strconv.ParseUint(raw, 16, 64)
 	if err != nil {
 		err = mapError(err)
-		return dec,err
+		return dec, err
 	}
 	return dec, nil
 }

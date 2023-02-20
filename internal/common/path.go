@@ -18,11 +18,11 @@ package common
 
 import (
 	"fmt"
+	"github.com/anyswap/FastMulThreshold-DSA/log"
 	"os"
 	"os/user"
 	"path/filepath"
 	"runtime"
-	"github.com/anyswap/FastMulThreshold-DSA/log"
 )
 
 var (
@@ -58,7 +58,7 @@ func AbsolutePath(datadir string, filename string) string {
 func InitDir(dir string) {
 	if dir == "" {
 		datadir = DefaultDataDir()
-		log.Info("==== InitDir() ====","datadir",datadir)
+		log.Info("==== InitDir() ====", "datadir", datadir)
 		return
 	}
 	if filepath.IsAbs(dir) {
@@ -67,14 +67,14 @@ func InitDir(dir string) {
 		pwdDir, _ := os.Getwd()
 		datadir = filepath.Join(pwdDir, dir)
 		if FileExist(datadir) != true {
-		    err := os.Mkdir(datadir, os.ModePerm)
-		    if err != nil {
-			fmt.Printf("==== InitDir(), mk dir fail ====, datadir: %v,err: %v\n", datadir,err)
-			return
-		    }
+			err := os.Mkdir(datadir, os.ModePerm)
+			if err != nil {
+				fmt.Printf("==== InitDir(), mk dir fail ====, datadir: %v,err: %v\n", datadir, err)
+				return
+			}
 		}
 	}
-	log.Info("==== InitDir() ====","datadir",datadir)
+	log.Info("==== InitDir() ====", "datadir", datadir)
 }
 
 // DefaultDataDir is the default data directory to use for the databases and other

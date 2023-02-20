@@ -17,15 +17,15 @@
 package common
 
 const (
-    	// Sep  Separator mark 
-	Sep     = "dcrmparm"
+	// Sep  Separator mark
+	Sep = "dcrmparm"
 
-	// Sep2  Separator mark 
-	Sep2    = "smpcmsg"
+	// Sep2  Separator mark
+	Sep2 = "smpcmsg"
 
-	// Sep11  Separator mark 
-	Sep11   = "smpcsep11"
+	// Sep11  Separator mark
+	Sep11 = "smpcsep11"
 
-	// SepSave  Separator mark 
+	// SepSave  Separator mark
 	SepSave = "dcrmsepsave"
 )

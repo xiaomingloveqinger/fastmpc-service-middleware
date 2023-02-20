@@ -10,6 +10,7 @@ import (
 	common2 "github.com/anyswap/fastmpc-service-middleware/internal/common"
 	"github.com/anyswap/fastmpc-service-middleware/internal/flags"
 	"github.com/anyswap/fastmpc-service-middleware/internal/params"
+	_ "github.com/anyswap/fastmpc-service-middleware/jobs"
 	service2 "github.com/anyswap/fastmpc-service-middleware/service"
 	"gopkg.in/urfave/cli.v1"
 	"net"

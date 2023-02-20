@@ -19,10 +19,10 @@
 -- Table structure for table `smw_group_info`
 --
 
-DROP TABLE IF EXISTS `group_info`;
+DROP TABLE IF EXISTS `groups_info`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `group_info` (
+CREATE TABLE `groups_info` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `tx_type` varchar(24) COLLATE utf8mb4_bin NOT NULL COMMENT '交易类型',
   `account` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '交易发送方',

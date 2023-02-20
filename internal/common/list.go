@@ -14,7 +14,7 @@
  *
  */
 
-// Package common  Self encapsulated list structure supporting concurrent operation 
+// Package common  Self encapsulated list structure supporting concurrent operation
 package common
 
 import (
@@ -43,7 +43,7 @@ func (q *Queue) PushBack(v interface{}) {
 	q.l.PushBack(v)
 }
 
-// Front get front element 
+// Front get front element
 func (q *Queue) Front() *list.Element {
 	q.m.Lock()
 	defer q.m.Unlock()
@@ -72,9 +72,8 @@ func (q *Queue) InsertBefore(v interface{}, e *list.Element) {
 	q.m.Lock()
 	defer q.m.Unlock()
 	if e == nil {
-	    return
+		return
 	}
 
 	q.l.InsertBefore(v, e)
 }
-

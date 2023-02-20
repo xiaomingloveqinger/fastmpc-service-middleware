@@ -22,9 +22,9 @@ import (
 )
 
 const (
-	VersionMajor = 7        // Major version component of the current release
-	VersionMinor = 2        // Minor version component of the current release
-	VersionPatch = 7        // Patch version component of the current release
+	VersionMajor = 7      // Major version component of the current release
+	VersionMinor = 2      // Minor version component of the current release
+	VersionPatch = 7      // Patch version component of the current release
 	VersionMeta  = "beta" // Version metadata to append to the version string
 )
 
@@ -74,9 +74,9 @@ var (
 )
 
 func SetVersion(version, commit, date string) {
-	log.Info("","gitVersion",version)
-	log.Info("","gitCommit",commit)
-	log.Info("","gitDate",date)
+	log.Info("", "gitVersion", version)
+	log.Info("", "gitCommit", commit)
+	log.Info("", "gitDate", date)
 	gitVersion = version
 	gitCommit = commit
 	gitDate = date

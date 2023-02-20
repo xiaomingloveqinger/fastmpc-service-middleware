@@ -91,8 +91,8 @@ func (dia *Dialect) Rollback(tx *sql.Tx) error {
 //Execute data manipulate language already commited no need to commit again
 func (dia *Dialect) CommitOneRow(sql string, args ...interface{}) (int64, error) {
 	log.Info(sql)
-	for i, v := range args {
-		log.Info("query param", "value", v, "index", i)
+	for _, v := range args {
+		log.Info("query param", "value", v)
 	}
 	stmt, err := dia.db.Prepare(sql)
 	if err != nil {
@@ -138,8 +138,8 @@ func BatchExecute(sql string, tx *sql.Tx, params ...interface{}) (int64, error) 
 
 func (dia *Dialect) Query(s string, params ...interface{}) (*list.List, error) {
 	log.Info(s)
-	for i, v := range params {
-		log.Info("query param", "value", v, "index", i)
+	for _, v := range params {
+		log.Info("query param", "value", v)
 	}
 	rows, err := dia.db.Query(s, params...)
 	if err != nil {
