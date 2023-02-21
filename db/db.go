@@ -115,8 +115,8 @@ func (dia *Dialect) CommitOneRow(sql string, args ...interface{}) (int64, error)
 //BatchExecute batch data manipulate , need use begin to get a tx and rollback or commit this tx
 func BatchExecute(sql string, tx *sql.Tx, params ...interface{}) (int64, error) {
 	log.Info(sql)
-	for i, v := range params {
-		log.Info("query param", "value", v, "index", i)
+	for _, v := range params {
+		log.Info("query param", "value", v)
 	}
 	stmt, err := tx.Prepare(sql)
 	if err != nil {

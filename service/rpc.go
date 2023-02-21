@@ -19,3 +19,21 @@ func (service *ServiceMiddleWare) TestJsonrpc(rsv string, msg string) map[string
 		}
 	}
 }
+
+func (service *ServiceMiddleWare) GetGroupIdAndEnodes(threshold string, userAccountsAndIpPortAddr []string) map[string]interface{} {
+	if data, err := GetGroupIdAndEnodes(threshold, userAccountsAndIpPortAddr); err != nil {
+		return map[string]interface{}{
+			"Status": "error",
+			"Tip":    "something unexpected happen",
+			"Error":  err.Error(),
+			"Data":   "",
+		}
+	} else {
+		return map[string]interface{}{
+			"Status": "success",
+			"Tip":    "",
+			"Error":  "",
+			"Data":   data,
+		}
+	}
+}

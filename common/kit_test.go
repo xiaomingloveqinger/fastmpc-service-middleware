@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"github.com/anyswap/FastMulThreshold-DSA/log"
 	"testing"
 )
@@ -11,4 +12,78 @@ func TestRecoverAddress(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	log.Info(addr)
+}
+
+func TestCheckThreshold(t *testing.T) {
+	s := "1#2/21"
+	_, _, err := CheckThreshold(s)
+	if err != nil {
+		log.Info(err.Error())
+	}
+
+	s = "22/21"
+	_, _, err = CheckThreshold(s)
+	if err != nil {
+		log.Info(err.Error())
+	}
+
+	s = "22@21"
+	_, _, err = CheckThreshold(s)
+	if err != nil {
+		log.Info(err.Error())
+	}
+
+	s = "0/21"
+	_, _, err = CheckThreshold(s)
+	if err != nil {
+		log.Info(err.Error())
+	}
+
+	s = "1/21"
+	p1, p2, err := CheckThreshold(s)
+	if err != nil {
+		t.Fatal(errors.New("Unexpected error"))
+	}
+	log.Info("test data", "p1", p1, "p2", p2)
+
+}
+
+func TestCheckUserAccountsAndIpPortAddr(t *testing.T) {
+	s := "0x89b36c41175bc9f2341b24c8083633c89b144023|10.40.210.253"
+	var param []string
+	param = append(param, s)
+	_, _, err := CheckUserAccountsAndIpPortAddr(param)
+	if err != nil {
+		log.Info(err.Error())
+	}
+	s1 := "0x89b36c41175bc9f2341b24c8083633c89b144023|10.40.210.253:1022"
+	s2 := "0x89b36c41175bc9f2341b24c8083633c89b1440232"
+	param = []string{}
+	param = append(param, s1)
+	param = append(param, s2)
+	_, _, err = CheckUserAccountsAndIpPortAddr(param)
+	if err != nil {
+		log.Info(err.Error())
+	}
+	s3 := "0x89b36c41175bc9f2341b24c8083633c89b144023"
+	param = []string{}
+	param = append(param, s1)
+	param = append(param, s3)
+	acs, ports, err := CheckUserAccountsAndIpPortAddr(param)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	for _, v := range acs {
+		log.Info(v)
+	}
+	for _, v := range ports {
+		log.Info(v)
+	}
+}
+
+func TestGetRandomIndex(t *testing.T) {
+	println(GetRandomIndex(100))
+	println(GetRandomIndex(100))
+	println(GetRandomIndex(100))
+	println(GetRandomIndex(100))
 }

@@ -8,9 +8,13 @@ import (
 	"github.com/anyswap/FastMulThreshold-DSA/smpc"
 	"github.com/anyswap/fastmpc-service-middleware/internal/common"
 	"github.com/fsn-dev/cryptoCoins/coins"
+	"math/rand"
+	"net"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func SplitAndTrim(input string) []string {
@@ -127,4 +131,115 @@ func RecoverAddress(data, sig string) (string, error) {
 		return "", err
 	}
 	return addr, nil
+}
+
+func CheckThreshold(threshold string) (int, int, error) {
+	if !strings.Contains(threshold, "/") {
+		return -1, -1, errors.New("invalid threshold")
+	}
+	parts := strings.Split(threshold, "/")
+	if len(parts) != 2 {
+		return -1, -1, errors.New("invalid threshold")
+	}
+	p1, err := strconv.ParseInt(parts[0], 10, 64)
+	if err != nil {
+		return -1, -1, errors.New("invalid threshold")
+	}
+	p2, err := strconv.ParseInt(parts[1], 10, 64)
+	if err != nil {
+		return -1, -1, errors.New("invalid threshold")
+	}
+	if p1 > p2 {
+		return -1, -1, errors.New("invalid threshold")
+	}
+	if p1 < 1 || p2 < 1 {
+		return -1, -1, errors.New("invalid threshold")
+	}
+	return int(p1), int(p2), nil
+}
+
+func CheckUserAccountsAndIpPortAddr(userAccountsAndIpPortAddr []string) ([]string, []string, error) {
+	if len(userAccountsAndIpPortAddr) < 2 {
+		return nil, nil, errors.New("invalid UserAccountsAndIpPortAddr")
+	}
+	var accounts []string
+	var ipPort []string
+	accountsHolder := make(map[string]bool)
+	ipPortHolder := make(map[string]bool)
+	for _, v := range userAccountsAndIpPortAddr {
+		// only contains ethereum address
+		if !strings.Contains(v, "|") {
+			if !CheckEthereumAddress(v) {
+				return nil, nil, errors.New("invalid UserAccountsAndIpPortAddr")
+			} else {
+				accounts = append(accounts, v)
+				if accountsHolder[v] == true {
+					return nil, nil, errors.New("duplicated account")
+				} else {
+					accountsHolder[v] = true
+				}
+				ipPort = append(ipPort, "")
+			}
+		} else {
+			// contains ethereum address and ip:port
+			parts := strings.Split(v, "|")
+			if len(parts) != 2 {
+				return nil, nil, errors.New("invalid UserAccountsAndIpPortAddr")
+			}
+			if !CheckEthereumAddress(parts[0]) {
+				return nil, nil, errors.New("invalid UserAccountsAndIpPortAddr")
+			} else {
+				accounts = append(accounts, parts[0])
+				if accountsHolder[parts[0]] == true {
+					return nil, nil, errors.New("duplicated account")
+				} else {
+					accountsHolder[parts[0]] = true
+				}
+			}
+			left := strings.TrimPrefix(parts[1], "https://")
+			left = strings.TrimPrefix(left, "https://")
+			if !strings.Contains(left, ":") {
+				return nil, nil, errors.New("invalid UserAccountsAndIpPortAddr")
+			}
+			p := strings.Split(left, ":")
+			if len(p) != 2 {
+				return nil, nil, errors.New("invalid UserAccountsAndIpPortAddr")
+			}
+			if net.ParseIP(p[0]) == nil {
+				return nil, nil, errors.New("invalid UserAccountsAndIpPortAddr")
+			}
+			port, err := strconv.ParseInt(p[1], 10, 64)
+			if err != nil {
+				if net.ParseIP(p[0]) == nil {
+					return nil, nil, errors.New("invalid UserAccountsAndIpPortAddr")
+				}
+			}
+			if !(0 < port && port < 65535) {
+				return nil, nil, errors.New("invalid UserAccountsAndIpPortAddr")
+			}
+			ipPort = append(ipPort, left)
+			if ipPortHolder[left] == true {
+				return nil, nil, errors.New("duplicated ip port")
+			} else {
+				ipPortHolder[left] = true
+			}
+		}
+	}
+	return accounts, ipPort, nil
+}
+
+func CheckEthereumAddress(addr string) bool {
+	re := regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
+	return re.MatchString(addr)
+}
+
+func GetRandomIndex(max int) int {
+	return r.Intn(max)
+}
+
+var r *rand.Rand
+
+func init() {
+	source := rand.NewSource(time.Now().UnixNano())
+	r = rand.New(source)
 }

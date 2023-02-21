@@ -16,29 +16,28 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `smw_group_info`
+-- Table structure for table `smw_enodes_info`
 --
 
-DROP TABLE IF EXISTS `groups_info`;
+DROP TABLE IF EXISTS `accounts_info`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `groups_info` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `tx_type` varchar(24) COLLATE utf8mb4_bin NOT NULL COMMENT '交易类型',
-  `account` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '交易发送方',
-  `nonce` bigint(20) COLLATE utf8mb4_bin NOT NULL COMMENT '交易发送方当前的nonce值',
-  `key_type`varchar(24) COLLATE utf8mb4_bin NOT NULL COMMENT '加密算法类型',
-  `group_id` varchar(128) COLLATE utf8mb4_bin NOT NULL COMMENT '组ID',
-  `thres_hold` varchar(24) COLLATE utf8mb4_bin NOT NULL COMMENT '门限值 ，2/3',
-  `mode` tinyint(2) NOT NULL COMMENT '0：需要审批，gid用subid，1：不需要审批，自动审批，2：需要审批，但是现将签名发送到总组gid就是总组的id，然后再子组竞争，谁先签名，谁完成交易',
-  `accept_timeout` int(11) NOT NULL COMMENT '接收组的超时时间',
-  `sigs` mediumtext COLLATE utf8mb4_bin NOT NULL COMMENT 'enode list separated by |',
-  `timestamp` int(11) NOT NULL COMMENT '交易发送时间戳',
-  `key_id` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address key id',
-  `status` tinyint(2) NOT NULL DEFAULT 0 COMMENT '0:pending ,1: success ,-1 invalid',
+CREATE TABLE `accounts_info` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `gid` varchar(256) COLLATE utf8mb4_bin NOT NULL COMMENT '组ID',
+  `threshold` varchar(10) COLLATE utf8mb4_bin NOT NULL COMMENT '门限制',
+  `user_account` varchar(256) COLLATE utf8mb4_bin NOT NULL COMMENT '用户account',
+  `ip_port` varchar(512) COLLATE utf8mb4_bin NOT NULL COMMENT 'gid对应用户对应的ipport地址',
+  `enode` varchar(512) COLLATE utf8mb4_bin NOT NULL COMMENT '节点对应的enode',
+  `key_id` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address key ID',
+  `public_key` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address public key',
+  `mpc_address` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address',
+  `initializer` tinyint(2) COMMENT '0:not initializer ,1: initializer',
+  `reply_status` varchar(128) COLLATE utf8mb4_bin COMMENT 'reply status of creating mpc wallet',
+  `reply_timestamp` timestamp COMMENT 'reply timestamp',
+  `status` tinyint(2) NOT NULL DEFAULT 0 COMMENT '0:normal ,-1: invalid',
   `local_system_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `group_id_UNIQUE` (`group_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -51,4 +50,4 @@ CREATE TABLE `groups_info` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-16 14:06:07
+-- Dump completed on 2023-02-16 13:35:55
