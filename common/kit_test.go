@@ -1,6 +1,8 @@
 package common
 
 import (
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"github.com/anyswap/FastMulThreshold-DSA/log"
 	"testing"
@@ -86,4 +88,21 @@ func TestGetRandomIndex(t *testing.T) {
 	println(GetRandomIndex(100))
 	println(GetRandomIndex(100))
 	println(GetRandomIndex(100))
+}
+
+func TestRawData(t *testing.T) {
+	type Msg struct {
+		Threshold                 string
+		UserAccountsAndIpPortAddr []string
+	}
+
+	msg := &Msg{
+		Threshold:                 "2/2",
+		UserAccountsAndIpPortAddr: []string{"0x24afFAe9C683b7615D4130300288E348E4b5D091|127.0.0.1:3794", "0xe3fF6ebf6F0B76dC7B029d3CCB8c9eaF3F979Cff"},
+	}
+	data, err := json.Marshal(msg)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	log.Info(hex.EncodeToString(data))
 }

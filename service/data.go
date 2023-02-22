@@ -7,11 +7,25 @@ import (
 	"github.com/anyswap/FastMulThreshold-DSA/log"
 	"github.com/anyswap/fastmpc-service-middleware/common"
 	"github.com/anyswap/fastmpc-service-middleware/db"
+	common2 "github.com/anyswap/fastmpc-service-middleware/internal/common"
 	"github.com/onrik/ethrpc"
 )
 
 func GetTestData() (string, error) {
 	return db.Conn.GetStringValue("select name from test where id = ?", 1)
+}
+
+func GetGroupIdAndEnodesByRawData(raw string) (interface{}, error) {
+	type Msg struct {
+		Threshold                 string
+		UserAccountsAndIpPortAddr []string
+	}
+	m := Msg{}
+	err := json.Unmarshal(common2.FromHex(raw), &m)
+	if err != nil {
+		return nil, err
+	}
+	return GetGroupIdAndEnodes(m.Threshold, m.UserAccountsAndIpPortAddr)
 }
 
 // GetGroupIdAndEnodes threshold 2/3, userAccountsAndIpPortAddr user1|ip:port user2 user3|ip:port

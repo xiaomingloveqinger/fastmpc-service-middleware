@@ -37,3 +37,21 @@ func (service *ServiceMiddleWare) GetGroupIdAndEnodes(threshold string, userAcco
 		}
 	}
 }
+
+func (service *ServiceMiddleWare) GetGroupIdAndEnodesByRawData(raw string) map[string]interface{} {
+	if data, err := GetGroupIdAndEnodesByRawData(raw); err != nil {
+		return map[string]interface{}{
+			"Status": "error",
+			"Tip":    "something unexpected happen",
+			"Error":  err.Error(),
+			"Data":   "",
+		}
+	} else {
+		return map[string]interface{}{
+			"Status": "success",
+			"Tip":    "",
+			"Error":  "",
+			"Data":   data,
+		}
+	}
+}
