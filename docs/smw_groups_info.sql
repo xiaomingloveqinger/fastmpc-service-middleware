@@ -35,7 +35,7 @@ CREATE TABLE `groups_info` (
   `sigs` mediumtext COLLATE utf8mb4_bin NOT NULL COMMENT 'enode list separated by |',
   `timestamp` int(11) NOT NULL COMMENT '交易发送时间戳',
   `key_id` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address key id',
-  `status` tinyint(2) NOT NULL DEFAULT 0 COMMENT '0:pending ,1: success ,-1 invalid',
+  `uuid` varchar(128) COLLATE utf8mb4_bin COMMENT 'uniq identifier',
   `local_system_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `group_id_UNIQUE` (`group_id`)

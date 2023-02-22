@@ -2,12 +2,15 @@ package common
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/anyswap/FastMulThreshold-DSA/crypto"
 	"github.com/anyswap/FastMulThreshold-DSA/crypto/secp256k1"
 	"github.com/anyswap/FastMulThreshold-DSA/smpc"
 	"github.com/anyswap/fastmpc-service-middleware/internal/common"
 	"github.com/fsn-dev/cryptoCoins/coins"
+	"golang.org/x/crypto/sha3"
 	"math/rand"
 	"net"
 	"reflect"
@@ -16,6 +19,17 @@ import (
 	"strings"
 	"time"
 )
+
+func PublicKeyBytesToAddress(publicKey []byte) common.Address {
+	var buf []byte
+
+	hash := sha3.NewLegacyKeccak256()
+	hash.Write(publicKey[1:]) // remove EC prefix 04
+	buf = hash.Sum(nil)
+	address := buf[12:]
+
+	return common.HexToAddress(hex.EncodeToString(address))
+}
 
 func SplitAndTrim(input string) []string {
 	result := strings.Split(input, ",")
@@ -231,6 +245,73 @@ func CheckUserAccountsAndIpPortAddr(userAccountsAndIpPortAddr []string) ([]strin
 func CheckEthereumAddress(addr string) bool {
 	re := regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
 	return re.MatchString(addr)
+}
+
+func VerifyAccount(rsv string, msg string) error {
+	sig := common.FromHex(rsv)
+	if sig == nil {
+		return errors.New("rsv from hex failed")
+	}
+
+	hash := smpc.GetMsgSigHash([]byte(msg))
+	public, err := crypto.SigToPub(hash, sig)
+	if err != nil {
+		return errors.New("SigToPub error " + err.Error())
+	}
+	type ReqData struct {
+		Keytype string
+		Account string
+	}
+	req := ReqData{}
+	err = json.Unmarshal([]byte(msg), &req)
+	if err != nil {
+		return err
+	}
+	pub := secp256k1.S256(req.Keytype).Marshal(public.X, public.Y)
+	pubStr := hex.EncodeToString(pub)
+	h := coins.NewCryptocoinHandler("ETH")
+	if h == nil {
+		return errors.New("NewCryptocoinHandler error")
+	}
+	addr, err := h.PublicKeyToAddress(pubStr)
+	if err != nil {
+		return errors.New("PublicKeyToAddress error " + err.Error())
+	}
+	if !strings.EqualFold(addr, req.Account) {
+		return errors.New("verify sig fail")
+	}
+	return nil
+}
+
+func GetJSONData(successResponse json.RawMessage) ([]byte, error) {
+	var rep response
+	if err := json.Unmarshal(successResponse, &rep); err != nil {
+		fmt.Println("getJSONData Unmarshal json fail:", err)
+		return nil, err
+	}
+	if rep.Status != "Success" {
+		return nil, errors.New(rep.Error)
+	}
+	repData, err := json.Marshal(rep.Data)
+	if err != nil {
+		fmt.Println("getJSONData Marshal json fail:", err)
+		return nil, err
+	}
+	return repData, nil
+}
+
+// getJSONResult parse result from rpc return data
+func GetJSONResult(successResponse json.RawMessage) (string, error) {
+	var data dataResult
+	repData, err := GetJSONData(successResponse)
+	if err != nil {
+		return "", err
+	}
+	if err := json.Unmarshal(repData, &data); err != nil {
+		fmt.Println("getJSONResult Unmarshal json fail:", err)
+		return "", err
+	}
+	return data.Result, nil
 }
 
 func GetRandomIndex(max int) int {

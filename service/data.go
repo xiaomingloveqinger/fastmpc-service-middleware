@@ -5,17 +5,61 @@ import (
 	"errors"
 	"fmt"
 	"github.com/anyswap/FastMulThreshold-DSA/log"
+	"github.com/anyswap/FastMulThreshold-DSA/smpc"
 	"github.com/anyswap/fastmpc-service-middleware/common"
 	"github.com/anyswap/fastmpc-service-middleware/db"
 	common2 "github.com/anyswap/fastmpc-service-middleware/internal/common"
+	"github.com/google/uuid"
 	"github.com/onrik/ethrpc"
 )
 
-func GetTestData() (string, error) {
-	return db.Conn.GetStringValue("select name from test where id = ?", 1)
+func doKeyGen(rsv string, msg string) (interface{}, error) {
+	err := common.VerifyAccount(rsv, msg)
+	if err != nil {
+		return nil, err
+	}
+	req := smpc.TxDataReqAddr{}
+	err = json.Unmarshal([]byte(msg), &req)
+	if err != nil {
+		return nil, err
+	}
+	if req.Mode != "3" {
+		return nil, errors.New("service keygen mod must be 3")
+	}
+	ipStr, err := db.Conn.GetStringValue("select ip_port from accounts_info where gid = ? and account = ? and threshold = ?",
+		req.GroupID, req.Account, req.ThresHold)
+	if err != nil {
+		return nil, errors.New("GetStringValue error " + err.Error())
+	}
+
+	client := ethrpc.New("http://" + ipStr)
+	reqKeyID, err := client.Call("smpc_reqKeyGen", rsv, msg)
+	if err != nil {
+		return nil, errors.New("smpc_reqKeyGen error " + err.Error())
+	}
+	keyID, err := common.GetJSONResult(reqKeyID)
+	if err != nil {
+		return nil, errors.New("getJSONResult error" + err.Error())
+	}
+	_, err = db.Conn.CommitOneRow("update accounts_info set key_id = ? where gid = ? and uuid = (select uuid from accounts_info where gid = ? and account = ? and key_id is null limit 1)",
+		keyID, req.GroupID, req.GroupID, req.Account)
+	if err != nil {
+		return nil, errors.New("internal db error " + err.Error())
+	}
+	uid, err := db.Conn.GetStringValue("select uuid from accounts_info where account = ? and key_id = ?", req.Account, keyID)
+	if err != nil {
+		return nil, errors.New("internal db error " + err.Error())
+	}
+	_, err = db.Conn.CommitOneRow("insert into groups_info(tx_type, account, nonce, key_type, group_id, thres_hold, mode, accept_timeout, sigs , key_id, uuid) "+
+		"values(?,?,?,?,?,?,?,?,?,?,?)", req.TxType, req.Account, req.Nonce, req.Keytype, req.GroupID, req.ThresHold, req.Mode, req.AcceptTimeOut, req.Sigs, keyID, uid)
+	if err != nil {
+		return nil, errors.New("internal db error " + err.Error())
+	}
+
+	return keyID, nil
 }
 
-func GetGroupIdAndEnodesByRawData(raw string) (interface{}, error) {
+func getGroupIdAndEnodesByRawData(raw string) (interface{}, error) {
 	type Msg struct {
 		Threshold                 string
 		UserAccountsAndIpPortAddr []string
@@ -25,11 +69,11 @@ func GetGroupIdAndEnodesByRawData(raw string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return GetGroupIdAndEnodes(m.Threshold, m.UserAccountsAndIpPortAddr)
+	return getGroupIdAndEnodes(m.Threshold, m.UserAccountsAndIpPortAddr)
 }
 
-// GetGroupIdAndEnodes threshold 2/3, userAccountsAndIpPortAddr user1|ip:port user2 user3|ip:port
-func GetGroupIdAndEnodes(threshold string, userAccountsAndIpPortAddr []string) (interface{}, error) {
+// getGroupIdAndEnodes threshold 2/3, userAccountsAndIpPortAddr user1|ip:port user2 user3|ip:port
+func getGroupIdAndEnodes(threshold string, userAccountsAndIpPortAddr []string) (interface{}, error) {
 	_, p2, err := common.CheckThreshold(threshold)
 	if err != nil {
 		return nil, err
@@ -94,7 +138,7 @@ func GetGroupIdAndEnodes(threshold string, userAccountsAndIpPortAddr []string) (
 			Enode string `json:"Enode"`
 		}
 		var enodeJSON dataEnode
-		enodeData, _ := getJSONData(enodeRep)
+		enodeData, _ := common.GetJSONData(enodeRep)
 		if err := json.Unmarshal(enodeData, &enodeJSON); err != nil {
 			return nil, err
 		}
@@ -118,7 +162,7 @@ func GetGroupIdAndEnodes(threshold string, userAccountsAndIpPortAddr []string) (
 	}
 	log.Info(fmt.Sprintf("smpc_createGroup = %s\n", groupRep))
 	var groupJSON groupInfo
-	groupData, _ := getJSONData(groupRep)
+	groupData, _ := common.GetJSONData(groupRep)
 	if err := json.Unmarshal(groupData, &groupJSON); err != nil {
 		return nil, err
 	}
@@ -128,9 +172,10 @@ func GetGroupIdAndEnodes(threshold string, userAccountsAndIpPortAddr []string) (
 	if err != nil {
 		return nil, errors.New("internal db error " + err.Error())
 	}
+	uid := uuid.New().String()
 	for _, v := range acct_enode {
-		_, err = db.BatchExecute("insert into accounts_info(threshold, gid , user_account, ip_port, enode) values(?,?,?,?,?)", tx,
-			threshold, groupJSON.Gid, v.Account, v.Ip_port, v.Enode)
+		_, err = db.BatchExecute("insert into accounts_info(threshold, gid , user_account, ip_port, enode, uuid) values(?,?,?,?,?,?)", tx,
+			threshold, groupJSON.Gid, v.Account, v.Ip_port, v.Enode, uid)
 		if err != nil {
 			db.Conn.Rollback(tx)
 			return nil, errors.New("internal db error " + err.Error())
@@ -139,21 +184,4 @@ func GetGroupIdAndEnodes(threshold string, userAccountsAndIpPortAddr []string) (
 	db.Conn.Commit(tx)
 
 	return GroupIdAndEnodes{Gid: groupJSON.Gid, Enodes: enodeList}, nil
-}
-
-func getJSONData(successResponse json.RawMessage) ([]byte, error) {
-	var rep response
-	if err := json.Unmarshal(successResponse, &rep); err != nil {
-		fmt.Println("getJSONData Unmarshal json fail:", err)
-		return nil, err
-	}
-	if rep.Status != "Success" {
-		return nil, errors.New(rep.Error)
-	}
-	repData, err := json.Marshal(rep.Data)
-	if err != nil {
-		fmt.Println("getJSONData Marshal json fail:", err)
-		return nil, err
-	}
-	return repData, nil
 }

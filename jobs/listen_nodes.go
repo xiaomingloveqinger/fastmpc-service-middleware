@@ -3,14 +3,7 @@ package jobs
 import (
 	"github.com/anyswap/FastMulThreshold-DSA/log"
 	"github.com/anyswap/fastmpc-service-middleware/db"
-	"github.com/robfig/cron/v3"
 )
-
-var node MpcNodesInfo
-
-type MpcNodesInfo struct {
-	*cron.Cron
-}
 
 type Node struct {
 	Ip_addr     string
@@ -67,9 +60,5 @@ func getRegisteredNodeInfo() {
 }
 
 func init() {
-	node = MpcNodesInfo{
-		Cron: cron.New(),
-	}
 	node.AddFunc("@every 30s", getRegisteredNodeInfo)
-	node.Start()
 }

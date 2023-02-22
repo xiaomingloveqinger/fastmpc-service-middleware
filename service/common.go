@@ -1,16 +1,9 @@
 package service
 
-type response struct {
-	Status string      `json:"Status"`
-	Tip    string      `json:"Tip"`
-	Error  string      `json:"Error"`
-	Data   interface{} `json:"Data"`
-}
-
 type account_enode struct {
-	Account string
-	Enode   string
-	Ip_port string
+	Account string `json:"account"`
+	Enode   string `json:"enode"`
+	Ip_port string `json:"ip_port"`
 }
 
 type groupInfo struct {

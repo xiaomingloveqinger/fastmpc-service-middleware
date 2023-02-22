@@ -32,10 +32,14 @@ CREATE TABLE `accounts_info` (
   `key_id` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address key ID',
   `public_key` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address public key',
   `mpc_address` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address',
-  `initializer` tinyint(2) COMMENT '0:not initializer ,1: initializer',
+  `reply_initializer` tinyint(2) COMMENT '0:not initializer ,1: initializer',
   `reply_status` varchar(128) COLLATE utf8mb4_bin COMMENT 'reply status of creating mpc wallet',
   `reply_timestamp` timestamp COMMENT 'reply timestamp',
-  `status` tinyint(2) NOT NULL DEFAULT 0 COMMENT '0:normal ,-1: invalid',
+  `reply_enode` varchar(512) COLLATE utf8mb4_bin COMMENT 'reply enode',
+  `status` tinyint(2) NOT NULL DEFAULT 0 COMMENT '0:pending , 1 SUCCESS , 2 FAIL, 3 Timeout',
+  `error` varchar(512) COLLATE utf8mb4_bin COMMENT 'error message',
+  `tip`  varchar(512) COLLATE utf8mb4_bin COMMENT 'tip message',
+  `uuid` varchar(128) COLLATE utf8mb4_bin COMMENT 'uniq identifier',
   `local_system_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;

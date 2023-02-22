@@ -106,3 +106,12 @@ func TestRawData(t *testing.T) {
 	}
 	log.Info(hex.EncodeToString(data))
 }
+
+func TestPublicKeyBytesToAddress(t *testing.T) {
+	pub := "04bf1b0b1a551dbfcc94dd22d605ae5c8bc591f3a6543c2878dbc6e0428ded17d68f223fb396f2773bba712b4bfbedf71ccff6c73ba8d3b9e93531a237277380d9"
+	buf, err := hex.DecodeString(pub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	println(PublicKeyBytesToAddress(buf).String())
+}
