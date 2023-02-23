@@ -20,6 +20,21 @@ import (
 	"time"
 )
 
+func StripEnode(enode string) string {
+	s1 := strings.Split(enode, "//")
+	if len(s1) != 2 {
+		return ""
+	}
+	s2 := strings.Split(s1[1], "@")
+	if len(s2) != 2 {
+		return ""
+	}
+	if len(s2[0]) != 128 {
+		return ""
+	}
+	return s2[0]
+}
+
 func PublicKeyBytesToAddress(publicKey []byte) common.Address {
 	var buf []byte
 

@@ -13,7 +13,24 @@ type groupInfo struct {
 	Enodes interface{} `json:"Enodes"`
 }
 
-type GroupIdAndEnodes struct {
-	Gid    string   `json:"Gid"`
-	Enodes []string `json:"Enodes"`
+type Group struct {
+	Gid  string `json:"Gid"`
+	Sigs string `json:"Sigs"`
+	Uuid string `json:"Uuid"`
+}
+
+type TxDataReqAddr struct {
+	TxType        string
+	Account       string
+	Nonce         string
+	Keytype       string
+	GroupID       string
+	ThresHold     string
+	Mode          string
+	FixedApprover []string
+	AcceptTimeOut string
+	TimeStamp     string
+	Sigs          string
+	Comment       string
+	Uuid          string
 }

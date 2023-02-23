@@ -33,12 +33,11 @@ CREATE TABLE `groups_info` (
   `mode` tinyint(2) NOT NULL COMMENT '0：需要审批，gid用subid，1：不需要审批，自动审批，2：需要审批，但是现将签名发送到总组gid就是总组的id，然后再子组竞争，谁先签名，谁完成交易',
   `accept_timeout` int(11) NOT NULL COMMENT '接收组的超时时间',
   `sigs` mediumtext COLLATE utf8mb4_bin NOT NULL COMMENT 'enode list separated by |',
-  `timestamp` int(11) NOT NULL COMMENT '交易发送时间戳',
+  `timestamp` varchar(64) NOT NULL COMMENT '交易发送时间戳',
   `key_id` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address key id',
   `uuid` varchar(128) COLLATE utf8mb4_bin COMMENT 'uniq identifier',
   `local_system_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `group_id_UNIQUE` (`group_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

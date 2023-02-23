@@ -60,5 +60,5 @@ func getRegisteredNodeInfo() {
 }
 
 func init() {
-	node.AddFunc("@every 30s", getRegisteredNodeInfo)
+	jobs.AddFunc("@every 1m", getRegisteredNodeInfo)
 }

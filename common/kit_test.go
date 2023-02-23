@@ -115,3 +115,8 @@ func TestPublicKeyBytesToAddress(t *testing.T) {
 	}
 	println(PublicKeyBytesToAddress(buf).String())
 }
+
+func TestStripEnode(t *testing.T) {
+	s := "enode://748ba7475b0da18887480871eb6a41c0b207c2056bf9e0cbe2d25677fef9849e3ec82d038e3d820ba9586abd1a1327555c63c34b71d9b8bccd7a1e3bedeca47b@127.0.0.1:30823"
+	println(StripEnode(s))
+}

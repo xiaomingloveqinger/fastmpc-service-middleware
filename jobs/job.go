@@ -2,15 +2,15 @@ package jobs
 
 import "github.com/robfig/cron/v3"
 
-var node MpcNodesInfo
+var jobs Jobs
 
-type MpcNodesInfo struct {
+type Jobs struct {
 	*cron.Cron
 }
 
 func init() {
-	node = MpcNodesInfo{
+	jobs = Jobs{
 		Cron: cron.New(),
 	}
-	node.Start()
+	jobs.Start()
 }

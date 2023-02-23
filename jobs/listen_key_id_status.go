@@ -11,7 +11,7 @@ import (
 )
 
 func listenKeyIdStatus() {
-	list, err := db.Conn.GetStructValue("select ip_port, key_id, uuid from accounts_info where key_id is not null and status == 0 group by key_id, ip_port, uuid", Data{})
+	list, err := db.Conn.GetStructValue("select ip_port, key_id, uuid from accounts_info where key_id is not null and status = 0 group by key_id, ip_port, uuid", Data{})
 	if err != nil {
 		log.Error("listenKeyIdStatus", "error", err.Error())
 		return
@@ -78,5 +78,5 @@ func listenKeyIdStatus() {
 }
 
 func init() {
-	node.AddFunc("@every 30s", listenKeyIdStatus)
+	jobs.AddFunc("@every 1m", listenKeyIdStatus)
 }
