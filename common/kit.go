@@ -20,6 +20,16 @@ import (
 	"time"
 )
 
+func ValidateKeyId(keyId string) bool {
+	if strings.HasPrefix(keyId, "0x") && len(keyId) == 66 {
+		return true
+	}
+	if len(keyId) == 64 {
+		return true
+	}
+	return false
+}
+
 func StripEnode(enode string) string {
 	s1 := strings.Split(enode, "//")
 	if len(s1) != 2 {

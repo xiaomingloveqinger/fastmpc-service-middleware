@@ -28,7 +28,7 @@ func listenKeyIdStatus() {
 		}
 		statusJSONStr, err := common.GetJSONResult(reqStatus)
 		if err != nil {
-			log.Error("smpc_getReqAddrStatus=NotStart", "keyID", d.Key_id)
+			log.Error("smpc_getReqAddrStatus=NotStart", "keyID", d.Key_id, "error", err.Error())
 			continue
 		}
 		log.Info("smpc_getReqAddrStatus", "keyId", d.Key_id, "result", statusJSONStr)

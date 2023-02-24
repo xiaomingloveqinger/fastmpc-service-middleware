@@ -13,6 +13,27 @@ import (
 	"strings"
 )
 
+func getReqAddrStatus(keyId string) (interface{}, error) {
+	if !common.ValidateKeyId(keyId) {
+		return nil, errors.New("keyId is not valid")
+	}
+	//TODO get address status from database
+	return nil, nil
+}
+
+func doKeyGenByRawData(raw string) (interface{}, error) {
+	type Msg struct {
+		Rsv string
+		Msg string
+	}
+	m := Msg{}
+	err := json.Unmarshal(common2.FromHex(raw), &m)
+	if err != nil {
+		return nil, err
+	}
+	return doKeyGen(m.Rsv, m.Msg)
+}
+
 func doKeyGen(rsv string, msg string) (interface{}, error) {
 	err := common.VerifyAccount(rsv, msg)
 	if err != nil {
@@ -67,7 +88,7 @@ func doKeyGen(rsv string, msg string) (interface{}, error) {
 	return keyID, nil
 }
 
-func getGroupIdAndEnodesByRawData(raw string) (interface{}, error) {
+func getGroupIdByRawData(raw string) (interface{}, error) {
 	type Msg struct {
 		Threshold                 string
 		UserAccountsAndIpPortAddr []string

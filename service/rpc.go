@@ -23,9 +23,9 @@ func (service *ServiceMiddleWare) GetGroupId(threshold string, userAccountsAndIp
 	}
 }
 
-func (service *ServiceMiddleWare) GetGroupIdAndEnodesByRawData(raw string) map[string]interface{} {
-	if data, err := getGroupIdAndEnodesByRawData(raw); err != nil {
-		log.Error("GetGroupIdAndEnodesByRawData", "error", err.Error())
+func (service *ServiceMiddleWare) GetGroupIdByRawData(raw string) map[string]interface{} {
+	if data, err := getGroupIdByRawData(raw); err != nil {
+		log.Error("GetGroupIdByRawData", "error", err.Error())
 		return map[string]interface{}{
 			"Status": "error",
 			"Tip":    "something unexpected happen",
@@ -45,6 +45,44 @@ func (service *ServiceMiddleWare) GetGroupIdAndEnodesByRawData(raw string) map[s
 func (service *ServiceMiddleWare) KeyGen(rsv string, msg string) map[string]interface{} {
 	if data, err := doKeyGen(rsv, msg); err != nil {
 		log.Error("KeyGen", "error", err.Error())
+		return map[string]interface{}{
+			"Status": "error",
+			"Tip":    "something unexpected happen",
+			"Error":  err.Error(),
+			"Data":   "",
+		}
+	} else {
+		return map[string]interface{}{
+			"Status": "success",
+			"Tip":    "",
+			"Error":  "",
+			"Data":   data,
+		}
+	}
+}
+
+func (service *ServiceMiddleWare) KeyGenByRawData(raw string) map[string]interface{} {
+	if data, err := doKeyGenByRawData(raw); err != nil {
+		log.Error("KeyGenByRawData", "error", err.Error())
+		return map[string]interface{}{
+			"Status": "error",
+			"Tip":    "something unexpected happen",
+			"Error":  err.Error(),
+			"Data":   "",
+		}
+	} else {
+		return map[string]interface{}{
+			"Status": "success",
+			"Tip":    "",
+			"Error":  "",
+			"Data":   data,
+		}
+	}
+}
+
+func (service *ServiceMiddleWare) getReqAddrStatus(keyId string) map[string]interface{} {
+	if data, err := getReqAddrStatus(keyId); err != nil {
+		log.Error("getReqAddrStatus", "error", err.Error())
 		return map[string]interface{}{
 			"Status": "error",
 			"Tip":    "something unexpected happen",
