@@ -17,7 +17,7 @@ func listenKeyIdStatus() {
 		return
 	}
 	for _, l := range list {
-		var statusJSON reqAddrStatus
+		var statusJSON ReqAddrStatus
 		d := l.(*Data)
 		uuid := d.Uuid
 		client := ethrpc.New("http://" + d.Ip_port)

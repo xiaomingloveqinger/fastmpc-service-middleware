@@ -1,9 +1,9 @@
 package service
 
 type account_enode struct {
-	Account string `json:"account"`
-	Enode   string `json:"enode"`
-	Ip_port string `json:"ip_port"`
+	Account string `json:"Account"`
+	Enode   string `json:"Enode"`
+	Ip_port string `json:"Ip_port"`
 }
 
 type groupInfo struct {
@@ -33,4 +33,16 @@ type TxDataReqAddr struct {
 	Sigs          string
 	Comment       string
 	Uuid          string
+}
+
+type RespAddr struct {
+	Status          string `json:"Status"`
+	User_account    string `json:"User_account"`
+	Key_id          string `json:"Key_id"`
+	Public_key      string `json:"Public_key"`
+	Mpc_address     string `json:"Mpc_address"`
+	Initializer     string `json:"Initializer"`
+	Reply_status    string `json:"Reply_status"`
+	Reply_timestamp string `json:"Reply_timestamp"`
+	Reply_enode     string `json:"Reply_enode"`
 }

@@ -1,6 +1,6 @@
 package jobs
 
-type reqAddrStatus struct {
+type ReqAddrStatus struct {
 	Status    string     `json:"Status"`
 	PubKey    string     `json:"PubKey"`
 	Tip       string     `json:"Tip"`

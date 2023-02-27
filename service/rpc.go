@@ -80,7 +80,7 @@ func (service *ServiceMiddleWare) KeyGenByRawData(raw string) map[string]interfa
 	}
 }
 
-func (service *ServiceMiddleWare) getReqAddrStatus(keyId string) map[string]interface{} {
+func (service *ServiceMiddleWare) GetReqAddrStatus(keyId string) map[string]interface{} {
 	if data, err := getReqAddrStatus(keyId); err != nil {
 		log.Error("getReqAddrStatus", "error", err.Error())
 		return map[string]interface{}{

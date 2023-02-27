@@ -17,8 +17,17 @@ func getReqAddrStatus(keyId string) (interface{}, error) {
 	if !common.ValidateKeyId(keyId) {
 		return nil, errors.New("keyId is not valid")
 	}
-	//TODO get address status from database
-	return nil, nil
+
+	v, err := db.Conn.GetStructValue("select status, user_account, key_id, public_key, mpc_address, initializer, reply_status ,reply_timestamp ,reply_enode from accounts_info where key_id = ?", RespAddr{}, keyId)
+	if err != nil {
+		return nil, errors.New("internal db error " + err.Error())
+	}
+
+	if len(v) == 0 {
+		return nil, errors.New("no such keyId")
+	}
+
+	return v, nil
 }
 
 func doKeyGenByRawData(raw string) (interface{}, error) {
