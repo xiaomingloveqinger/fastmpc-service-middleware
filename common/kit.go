@@ -20,6 +20,7 @@ import (
 	"time"
 )
 
+// ValidateKeyId validate key id
 func ValidateKeyId(keyId string) bool {
 	if strings.HasPrefix(keyId, "0x") && len(keyId) == 66 {
 		return true
@@ -30,6 +31,7 @@ func ValidateKeyId(keyId string) bool {
 	return false
 }
 
+// StripEnode get enode from reformed format
 func StripEnode(enode string) string {
 	s1 := strings.Split(enode, "//")
 	if len(s1) != 2 {
@@ -45,6 +47,7 @@ func StripEnode(enode string) string {
 	return s2[0]
 }
 
+// PublicKeyBytesToAddress get address from public key
 func PublicKeyBytesToAddress(publicKey []byte) common.Address {
 	var buf []byte
 
@@ -153,6 +156,7 @@ func Map2Struct(src map[string]interface{}, destStrct interface{}) {
 	}
 }
 
+// RecoverAddress recover address from data and signature
 func RecoverAddress(data, sig string) (string, error) {
 	hash := smpc.GetMsgSigHash([]byte(data))
 	public, err := crypto.SigToPub(hash, common.FromHex(sig))
@@ -325,7 +329,7 @@ func GetJSONData(successResponse json.RawMessage) ([]byte, error) {
 	return repData, nil
 }
 
-// getJSONResult parse result from rpc return data
+// GetJSONResult parse result from rpc return data
 func GetJSONResult(successResponse json.RawMessage) (string, error) {
 	var data dataResult
 	repData, err := GetJSONData(successResponse)

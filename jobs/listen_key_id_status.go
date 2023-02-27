@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+//listenKeyIdStatus listen kengen keyid status and stored it into db
 func listenKeyIdStatus() {
 	list, err := db.Conn.GetStructValue("select ip_port, key_id, uuid from accounts_info where key_id is not null and status = 0 group by key_id, ip_port, uuid", Data{})
 	if err != nil {

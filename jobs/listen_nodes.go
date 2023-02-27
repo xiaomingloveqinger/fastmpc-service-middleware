@@ -13,6 +13,7 @@ type Node struct {
 	Enode       string
 }
 
+// getRegisteredNodeInfo listen registered node and stored it into db
 func getRegisteredNodeInfo() {
 	log.Info("listen register nodes")
 	//TODO: tmp static data will be removed in the future
