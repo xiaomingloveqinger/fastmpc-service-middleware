@@ -52,24 +52,21 @@ func listenKeyIdStatus() {
 				continue
 			}
 			for _, reply := range statusJSON.AllReply {
-				apprAcct := reply.Approver
-				if apprAcct != "" {
-					addr := ""
-					if pub != "" {
-						pubBuf, err := hex.DecodeString(pub)
-						if err != nil {
-							log.Error("invalid statusJson public key", "error", err.Error())
-							continue
-						}
-						addr = common.PublicKeyBytesToAddress(pubBuf).String()
-					}
-					_, err := db.BatchExecute("update accounts_info set error = ? , tip = ? , reply_timestamp = ?, reply_status = ? , reply_initializer = ? , reply_enode = ? "+
-						"mpc_address = ?, public_key = ? , status = ? where uuid = ? and user_account = ?", tx, errMsg, tipMsg, reply.TimeStamp, reply.Status, reply.Initiator, reply.Enode,
-						addr, pub, stat, uuid, reply.Approver)
+				addr := ""
+				if pub != "" {
+					pubBuf, err := hex.DecodeString(pub)
 					if err != nil {
-						db.Conn.Rollback(tx)
-						log.Error("internal db error", "error", err.Error())
+						log.Error("invalid statusJson public key", "error", err.Error())
+						continue
 					}
+					addr = common.PublicKeyBytesToAddress(pubBuf).String()
+				}
+				_, err := db.BatchExecute("update accounts_info set error = ? , tip = ? , reply_timestamp = ?, reply_status = ? , reply_initializer = ? , reply_enode = ? "+
+					"mpc_address = ?, public_key = ? , status = ? where uuid = ? and substring(enode, 9, 128) = ?", tx, errMsg, tipMsg, reply.TimeStamp, reply.Status, reply.Initiator, reply.Enode,
+					addr, pub, stat, uuid, reply.Enode)
+				if err != nil {
+					db.Conn.Rollback(tx)
+					log.Error("internal db error", "error", err.Error())
 				}
 			}
 			db.Conn.Commit(tx)

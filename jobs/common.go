@@ -10,11 +10,11 @@ type ReqAddrStatus struct {
 }
 
 type AllReply struct {
-	Enode     string
-	Approver  string
-	Status    string
-	TimeStamp string
-	Initiator string
+	Enode     string `json:"Enode"`
+	Approver  string `json:"Approver"`
+	Status    string `json:"Status"`
+	TimeStamp string `json:"timeStamp"`
+	Initiator string `json:"Initiator"`
 }
 
 type Data struct {
