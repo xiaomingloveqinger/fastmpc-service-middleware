@@ -45,4 +45,6 @@ type RespAddr struct {
 	Reply_status    string `json:"Reply_status"`
 	Reply_timestamp string `json:"Reply_timestamp"`
 	Reply_enode     string `json:"Reply_enode"`
+	Gid             string `json:"Gid"`
+	Threshold       string `json:"Threshold"`
 }

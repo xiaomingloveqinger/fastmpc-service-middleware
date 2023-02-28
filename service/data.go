@@ -13,12 +13,25 @@ import (
 	"strings"
 )
 
+func getAccountList(userAccount string) (interface{}, error) {
+	if !common.CheckEthereumAddress(userAccount) {
+		return nil, errors.New("invalid userAccount")
+	}
+
+	l, err := db.Conn.GetStructValue("select * from accounts_info where user_account = ? and status = 1 ", RespAddr{}, userAccount)
+	if err != nil {
+		return nil, err
+	}
+
+	return l, nil
+}
+
 func getReqAddrStatus(keyId string) (interface{}, error) {
 	if !common.ValidateKeyId(keyId) {
 		return nil, errors.New("keyId is not valid")
 	}
 
-	v, err := db.Conn.GetStructValue("select status, user_account, key_id, public_key, mpc_address, initializer, reply_status ,reply_timestamp ,reply_enode from accounts_info where key_id = ?", RespAddr{}, keyId)
+	v, err := db.Conn.GetStructValue("select status, user_account, key_id, public_key, mpc_address, initializer, reply_status ,reply_timestamp ,reply_enode, gid , threshold from accounts_info where key_id = ?", RespAddr{}, keyId)
 	if err != nil {
 		return nil, errors.New("internal db error " + err.Error())
 	}

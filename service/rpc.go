@@ -98,3 +98,22 @@ func (service *ServiceMiddleWare) GetReqAddrStatus(keyId string) map[string]inte
 		}
 	}
 }
+
+func (service *ServiceMiddleWare) GetAccountList(userAccount string) map[string]interface{} {
+	if data, err := getAccountList(userAccount); err != nil {
+		log.Error("getAccountList", "error", err.Error())
+		return map[string]interface{}{
+			"Status": "error",
+			"Tip":    "something unexpected happen",
+			"Error":  err.Error(),
+			"Data":   "",
+		}
+	} else {
+		return map[string]interface{}{
+			"Status": "success",
+			"Tip":    "",
+			"Error":  "",
+			"Data":   data,
+		}
+	}
+}
