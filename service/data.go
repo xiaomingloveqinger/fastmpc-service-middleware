@@ -13,6 +13,42 @@ import (
 	"strings"
 )
 
+func doSign(rsv string, msg string) (interface{}, error) {
+	err := common.VerifyAccount(rsv, msg)
+	if err != nil {
+		return nil, err
+	}
+	req := TxDataSign{}
+	err = json.Unmarshal([]byte(msg), &req)
+	if err != nil {
+		return nil, err
+	}
+	ipPort, err := db.Conn.GetStringValue("select ip_port from accounts_info where public_key = ? and user_account = ? and status = 1", req.PubKey, strings.ToLower(req.Account))
+	if err != nil {
+		return nil, errors.New("internal db error " + err.Error())
+	}
+	if ipPort == "" {
+		return nil, errors.New("can not find pub key and account responded ip port")
+	}
+	client := ethrpc.New("http://" + ipPort)
+	reqKeyID, err := client.Call("smpc_signing", rsv, msg)
+	if err != nil {
+		return nil, err
+	}
+	keyID, err := common.GetJSONResult(reqKeyID)
+	if err != nil {
+		return nil, err
+	}
+	log.Info("smpc_sign keyID = %s", keyID)
+
+	_, err = db.Conn.CommitOneRow("insert into signs_info(account,nonce,pubkey,msg_hash,msg_context,key_type,group_id,threshold,`mod`,accept_timeout,`timestamp`,key_id) values(?,?,?,?,?,?,?,?,?,?,?,?)",
+		req.Account, req.Nonce, req.PubKey, req.MsgHash[0], req.MsgContext[0], req.Keytype, req.GroupID, req.ThresHold, req.Mode, req.AcceptTimeOut, req.TimeStamp, keyID)
+	if err != nil {
+		return nil, errors.New("internal db error" + err.Error())
+	}
+	return keyID, nil
+}
+
 func getAccountList(userAccount string) (interface{}, error) {
 	if !common.CheckEthereumAddress(userAccount) {
 		return nil, errors.New("invalid userAccount")

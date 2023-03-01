@@ -48,3 +48,21 @@ type RespAddr struct {
 	Gid             string `json:"Gid"`
 	Threshold       string `json:"Threshold"`
 }
+
+type TxDataSign struct {
+	TxType        string
+	Account       string
+	Nonce         string
+	PubKey        string
+	InputCode     string
+	MsgHash       []string
+	MsgContext    []string
+	Keytype       string
+	GroupID       string
+	ThresHold     string
+	Mode          string
+	AcceptTimeOut string
+	TimeStamp     string
+	FixedApprover []string
+	Comment       string
+}

@@ -19,27 +19,24 @@
 -- Table structure for table `smw_enodes_info`
 --
 
-DROP TABLE IF EXISTS `accounts_info`;
+DROP TABLE IF EXISTS `signs_info`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `accounts_info` (
+CREATE TABLE `signs_info` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `gid` varchar(256) COLLATE utf8mb4_bin NOT NULL COMMENT '组ID',
-  `threshold` varchar(10) COLLATE utf8mb4_bin NOT NULL COMMENT '门限制',
-  `user_account` varchar(256) COLLATE utf8mb4_bin NOT NULL COMMENT '用户account',
-  `ip_port` varchar(512) COLLATE utf8mb4_bin NOT NULL COMMENT 'gid对应用户对应的ipport地址',
-  `enode` varchar(512) COLLATE utf8mb4_bin NOT NULL COMMENT '节点对应的enode',
-  `key_id` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address key ID',
-  `public_key` varchar(256) COLLATE utf8mb4_bin COMMENT 'mpc address public key',
-  `mpc_address` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address',
-  `reply_initializer` tinyint(2) COMMENT '0:not initializer ,1: initializer',
-  `reply_status` varchar(128) COLLATE utf8mb4_bin COMMENT 'reply status of creating mpc wallet',
-  `reply_timestamp` varchar(128) COLLATE utf8mb4_bin COMMENT 'reply timestamp',
-  `reply_enode` varchar(512) COLLATE utf8mb4_bin COMMENT 'reply enode',
-  `status` tinyint(2) NOT NULL DEFAULT 0 COMMENT '0:pending , 1 SUCCESS , 2 FAIL, 3 Timeout',
-  `error` varchar(512) COLLATE utf8mb4_bin COMMENT 'error message',
-  `tip`  varchar(512) COLLATE utf8mb4_bin COMMENT 'tip message',
-  `uuid` varchar(128) COLLATE utf8mb4_bin COMMENT 'uniq identifier',
+  `account` varchar(128) COLLATE utf8mb4_bin NOT NULL COMMENT '节点账户',
+  `nonce` int COLLATE utf8mb4_bin NOT NULL COMMENT 'user account nonce',
+  `pubkey` varchar(256) COLLATE utf8mb4_bin NOT NULL COMMENT '签名公钥',
+  `msg_hash` varchar(256) COLLATE utf8mb4_bin NOT NULL COMMENT '代签名消息hash值',
+  `msg_context` mediumtext COLLATE utf8mb4_bin NOT NULL COMMENT 'msg 原文',
+  `key_type` varchar(10) COLLATE utf8mb4_bin NOT NULL COMMENT 'sign type',
+  `group_id` varchar(256) COLLATE utf8mb4_bin NOT NULL COMMENT 'group id of sign , can be sub_gid or gid',
+  `threshold` varchar(10) COLLATE utf8mb4_bin NOT NULL COMMENT 'sign threshold',
+  `mod` varchar(10) COLLATE utf8mb4_bin NOT NULL COMMENT 'sign mod',
+  `accept_timeout` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT 'accept timeout',
+  `timestamp` varchar(128) COLLATE utf8mb4_bin NOT NULL COMMENT 'sign timestamp',
+  `key_id` varchar(256) COLLATE utf8mb4_bin NOT NULL COMMENT 'sign keyId',
+  `status` tinyint(2) NOT NULL DEFAULT 0 COMMENT '0:normal ,-1: invalid',
   `local_system_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;

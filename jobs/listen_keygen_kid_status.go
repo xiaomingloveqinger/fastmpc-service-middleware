@@ -10,11 +10,11 @@ import (
 	"strings"
 )
 
-//listenKeyIdStatus listen kengen keyid status and stored it into db
-func listenKeyIdStatus() {
+//listenKeygenKidStatus listen kengen keyid status and stored it into db
+func listenKeygenKidStatus() {
 	list, err := db.Conn.GetStructValue("select ip_port, key_id, uuid from accounts_info where key_id is not null and status = 0 group by key_id, ip_port, uuid", Data{})
 	if err != nil {
-		log.Error("listenKeyIdStatus", "error", err.Error())
+		log.Error("listenKeygenKidStatus", "error", err.Error())
 		return
 	}
 	for _, l := range list {
@@ -76,5 +76,5 @@ func listenKeyIdStatus() {
 }
 
 func init() {
-	jobs.AddFunc("@every 1m", listenKeyIdStatus)
+	jobs.AddFunc("@every 1m", listenKeygenKidStatus)
 }

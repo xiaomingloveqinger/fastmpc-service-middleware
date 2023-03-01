@@ -117,3 +117,22 @@ func (service *ServiceMiddleWare) GetAccountList(userAccount string) map[string]
 		}
 	}
 }
+
+func (service *ServiceMiddleWare) Sign(rsv string, msg string) map[string]interface{} {
+	if data, err := doSign(rsv, msg); err != nil {
+		log.Error("doSign", "error", err.Error())
+		return map[string]interface{}{
+			"Status": "error",
+			"Tip":    "something unexpected happen",
+			"Error":  err.Error(),
+			"Data":   "",
+		}
+	} else {
+		return map[string]interface{}{
+			"Status": "success",
+			"Tip":    "",
+			"Error":  "",
+			"Data":   data,
+		}
+	}
+}
