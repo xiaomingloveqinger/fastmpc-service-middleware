@@ -181,7 +181,9 @@ func getGroupId(threshold string, userAccountsAndIpPortAddr []string) (interface
 			filledIpPort = filledIpPort + v + ","
 		}
 	}
-	filledIpPort = filledIpPort[0 : len(filledIpPort)-1]
+	if filledIpPort != "" {
+		filledIpPort = filledIpPort[0 : len(filledIpPort)-1]
+	}
 	filledIpPortCount, err := db.Conn.GetIntValue("select count(*) from nodes_info where ip_addr in (?)", filledIpPort)
 	if err != nil {
 		return nil, err

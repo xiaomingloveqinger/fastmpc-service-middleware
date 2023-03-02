@@ -20,6 +20,18 @@ import (
 	"time"
 )
 
+// ConvertArrStrToStr convert array string into a string with | as separator
+func ConvertArrStrToStr(strArr []string) string {
+	ret := ""
+	for i, v := range strArr {
+		ret += v
+		if i != len(strArr)-1 {
+			ret += "|"
+		}
+	}
+	return ret
+}
+
 // ValidateKeyId validate key id
 func ValidateKeyId(keyId string) bool {
 	if strings.HasPrefix(keyId, "0x") && len(keyId) == 66 {
