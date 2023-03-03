@@ -8,6 +8,13 @@ import (
 	"testing"
 )
 
+func TestIsBlank(t *testing.T) {
+	strArr := []string{"", "   ", " aasdf "}
+	for _, s := range strArr {
+		println(IsBlank(s))
+	}
+}
+
 func TestConvertArrStrToStr(t *testing.T) {
 	str := []string{"ab", "cd", "ef"}
 	println(ConvertArrStrToStr(str))

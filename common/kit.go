@@ -20,6 +20,17 @@ import (
 	"time"
 )
 
+func IsBlank(s string) bool {
+	if len(s) == 0 {
+		return true
+	}
+	if len(strings.ReplaceAll(s, " ", "")) == 0 {
+		return true
+	}
+
+	return false
+}
+
 // ConvertArrStrToStr convert array string into a string with | as separator
 func ConvertArrStrToStr(strArr []string) string {
 	ret := ""

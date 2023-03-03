@@ -136,3 +136,22 @@ func (service *ServiceMiddleWare) Sign(rsv string, msg string) map[string]interf
 		}
 	}
 }
+
+func (service *ServiceMiddleWare) GetUnsigedTransactionHash(unsignedTx string, chain int) map[string]interface{} {
+	if data, err := getUnsigedTransactionHash(unsignedTx, chain); err != nil {
+		log.Error("getUnsigedTransactionHash", "error", err.Error())
+		return map[string]interface{}{
+			"Status": "error",
+			"Tip":    "something unexpected happen",
+			"Error":  err.Error(),
+			"Data":   "",
+		}
+	} else {
+		return map[string]interface{}{
+			"Status": "success",
+			"Tip":    "",
+			"Error":  "",
+			"Data":   data,
+		}
+	}
+}

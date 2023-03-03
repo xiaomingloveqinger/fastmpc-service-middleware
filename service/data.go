@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,6 +13,11 @@ import (
 	"github.com/onrik/ethrpc"
 	"strings"
 )
+
+func getUnsigedTransactionHash(unsignedTx string, chain int) (interface{}, error) {
+	//TODO
+	return nil, nil
+}
 
 func doSign(rsv string, msg string) (interface{}, error) {
 	err := common.VerifyAccount(rsv, msg)
@@ -41,11 +47,41 @@ func doSign(rsv string, msg string) (interface{}, error) {
 	}
 	log.Info("smpc_sign keyID = %s", keyID)
 
-	_, err = db.Conn.CommitOneRow("insert into signs_info(account,nonce,pubkey,msg_hash,msg_context,key_type,group_id,threshold,`mod`,accept_timeout,`timestamp`,key_id) values(?,?,?,?,?,?,?,?,?,?,?,?)",
-		req.Account, req.Nonce, req.PubKey, req.MsgHash[0], req.MsgContext[0], req.Keytype, req.GroupID, req.ThresHold, req.Mode, req.AcceptTimeOut, req.TimeStamp, keyID)
+	tx, err := db.Conn.Begin()
 	if err != nil {
 		return nil, errors.New("internal db error" + err.Error())
 	}
+	_, err = db.BatchExecute("insert into signs_info(account,nonce,pubkey,msg_hash,msg_context,key_type,group_id,threshold,`mod`,accept_timeout,`timestamp`,key_id) values(?,?,?,?,?,?,?,?,?,?,?,?)",
+		tx, req.Account, req.Nonce, req.PubKey, common.ConvertArrStrToStr(req.MsgHash), common.ConvertArrStrToStr(req.MsgContext), req.Keytype, req.GroupID, req.ThresHold, req.Mode, req.AcceptTimeOut, req.TimeStamp, keyID)
+	if err != nil {
+		db.Conn.Rollback(tx)
+		return nil, errors.New("internal db error" + err.Error())
+	}
+	pubBuf, err := hex.DecodeString(req.PubKey)
+	if err != nil {
+		return nil, errors.New("invalid req pub key")
+	}
+	addr := common.PublicKeyBytesToAddress(pubBuf).String()
+	accts, err := db.Conn.GetStructValue("select user_account, enode from accounts_info where public_key = ?", Account{}, req.PubKey)
+	if err != nil {
+		db.Conn.Rollback(tx)
+		return nil, errors.New("internal db error" + err.Error())
+	}
+	if len(accts) == 0 {
+		db.Conn.Rollback(tx)
+		return nil, errors.New("invalid public key")
+	}
+	for _, acct := range accts {
+		a := acct.(*Account)
+		_, err = db.BatchExecute("insert into signs_detail(key_id, user_account, group_id, threshold, msg_hash, msg_context, public_key, mpc_address, key_type, mode, status, enode) values(?,?,?,?,?,?,?,?,?,?,?,?)",
+			tx, keyID, a.User_account, req.GroupID, req.ThresHold, common.ConvertArrStrToStr(req.MsgHash), common.ConvertArrStrToStr(req.MsgContext), req.PubKey, addr, req.Keytype, req.Mode, 0, a.Enode)
+		if err != nil {
+			db.Conn.Rollback(tx)
+			return nil, errors.New("internal db error" + err.Error())
+		}
+	}
+
+	db.Conn.Commit(tx)
 	return keyID, nil
 }
 

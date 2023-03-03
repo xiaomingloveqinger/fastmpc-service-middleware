@@ -49,5 +49,7 @@ type SignKids struct {
 }
 
 type IpData struct {
-	Ip_port string
+	Ip_port      string
+	User_account string
+	Enode        string
 }

@@ -66,3 +66,8 @@ type TxDataSign struct {
 	FixedApprover []string
 	Comment       string
 }
+
+type Account struct {
+	User_account string
+	Enode        string
+}
