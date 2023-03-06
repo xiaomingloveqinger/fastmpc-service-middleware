@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/anyswap/FastMulThreshold-DSA/log"
+	"github.com/anyswap/fastmpc-service-middleware/chains/types"
 	"github.com/anyswap/fastmpc-service-middleware/common"
 	"github.com/anyswap/fastmpc-service-middleware/db"
 	common2 "github.com/anyswap/fastmpc-service-middleware/internal/common"
@@ -16,8 +17,18 @@ import (
 )
 
 func getUnsigedTransactionHash(unsignedTx string, chain int) (interface{}, error) {
-	//TODO
-	return nil, nil
+	var c types.Chain
+	switch types.ChainType(chain) {
+	case types.EVM:
+		c = types.NewEVMChain()
+	default:
+		return nil, errors.New("unrecognized chain")
+	}
+	hash, err := c.GetUnsignedTransactionHash(unsignedTx)
+	if err != nil {
+		return nil, err
+	}
+	return hash, nil
 }
 
 func doSign(rsv string, msg string) (interface{}, error) {
