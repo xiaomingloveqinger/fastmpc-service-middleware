@@ -11,6 +11,7 @@ import (
 	common2 "github.com/anyswap/fastmpc-service-middleware/internal/common"
 	"github.com/google/uuid"
 	"github.com/onrik/ethrpc"
+	"strconv"
 	"strings"
 )
 
@@ -138,8 +139,8 @@ func doKeyGen(rsv string, msg string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	if req.Mode != "3" {
-		return nil, errors.New("service keygen mod must be 3")
+	if req.Mode != "2" {
+		return nil, errors.New("service keygen mod must be 2")
 	}
 	req.Account = strings.ToLower(req.Account)
 	ipStr, err := db.Conn.GetStringValue("select ip_port from accounts_info where gid = ? and user_account = ? and threshold = ? and key_id is null and uuid = ?",
@@ -306,11 +307,11 @@ func getGroupId(threshold string, userAccountsAndIpPortAddr []string) (interface
 			db.Conn.Rollback(tx)
 			return nil, errors.New("internal db error " + err.Error())
 		}
-		sigs += common.StripEnode(v.Enode) + ":" + strings.ToLower(v.Account) + "|"
+		sigs += common.StripEnode(v.Enode) + ":" + strings.ToLower(v.Account) + ":"
 	}
 	if err = db.Conn.Commit(tx); err != nil {
 		return nil, errors.New("internal db error " + err.Error())
 	}
 
-	return Group{Gid: groupJSON.Gid, Sigs: sigs, Uuid: uid}, nil
+	return Group{Gid: groupJSON.Gid, Sigs: strconv.Itoa(len(acct_enode)) + ":" + sigs[:len(sigs)-1], Uuid: uid}, nil
 }

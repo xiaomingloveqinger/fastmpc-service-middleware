@@ -32,7 +32,7 @@ CREATE TABLE `accounts_info` (
   `key_id` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address key ID',
   `public_key` varchar(256) COLLATE utf8mb4_bin COMMENT 'mpc address public key',
   `mpc_address` varchar(128) COLLATE utf8mb4_bin COMMENT 'mpc address',
-  `reply_initializer` tinyint(2) COMMENT '0:not initializer ,1: initializer',
+  `initializer` tinyint(2) COMMENT '0:not initializer ,1: initializer',
   `reply_status` varchar(128) COLLATE utf8mb4_bin COMMENT 'reply status of creating mpc wallet',
   `reply_timestamp` varchar(128) COLLATE utf8mb4_bin COMMENT 'reply timestamp',
   `reply_enode` varchar(512) COLLATE utf8mb4_bin COMMENT 'reply enode',
