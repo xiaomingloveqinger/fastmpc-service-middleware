@@ -20,7 +20,7 @@ func getUnsigedTransactionHash(unsignedTx string, chain int) (interface{}, error
 	var c types.Chain
 	switch types.ChainType(chain) {
 	case types.EVM:
-		c = types.NewEVMChain()
+		c = types.EC
 	default:
 		return nil, errors.New("unrecognized chain")
 	}
@@ -41,6 +41,20 @@ func doSign(rsv string, msg string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(req.MsgHash) != len(req.MsgContext) {
+		return nil, errors.New("message hash and message context length not match")
+	}
+
+	if len(req.MsgHash) == 0 {
+		return nil, errors.New("message hash and message context can not be blank")
+	}
+
+	for i, hash := range req.MsgHash {
+		if !types.EC.ValidateUnsignedTransactionHash(req.MsgContext[i], hash) {
+			return nil, errors.New("message hash and msg context value not match")
+		}
+	}
+
 	ipPort, err := db.Conn.GetStringValue("select ip_port from accounts_info where public_key = ? and user_account = ? and status = 1", req.PubKey, strings.ToLower(req.Account))
 	if err != nil {
 		return nil, errors.New("internal db error " + err.Error())

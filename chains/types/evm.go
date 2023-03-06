@@ -14,6 +14,8 @@ type EVMChain struct {
 	ChainType
 }
 
+var EC = NewEVMChain()
+
 func NewEVMChain() *EVMChain {
 	return &EVMChain{
 		EVM,
