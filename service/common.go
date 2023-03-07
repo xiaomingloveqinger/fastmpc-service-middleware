@@ -65,9 +65,11 @@ type TxDataSign struct {
 	TimeStamp     string
 	FixedApprover []string
 	Comment       string
+	ChainType     int
 }
 
 type Account struct {
 	User_account string
 	Enode        string
+	Ip_port      string
 }

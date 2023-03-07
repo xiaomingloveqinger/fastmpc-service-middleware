@@ -20,7 +20,7 @@ func getUnsigedTransactionHash(unsignedTx string, chain int) (interface{}, error
 	var c types.Chain
 	switch types.ChainType(chain) {
 	case types.EVM:
-		c = types.EC
+		c = types.EvmChain
 	default:
 		return nil, errors.New("unrecognized chain")
 	}
@@ -49,10 +49,15 @@ func doSign(rsv string, msg string) (interface{}, error) {
 		return nil, errors.New("message hash and message context can not be blank")
 	}
 
-	for i, hash := range req.MsgHash {
-		if !types.EC.ValidateUnsignedTransactionHash(req.MsgContext[i], hash) {
-			return nil, errors.New("message hash and msg context value not match")
+	switch types.ChainType(req.ChainType) {
+	case types.EVM:
+		for i, hash := range req.MsgHash {
+			if !types.EvmChain.ValidateUnsignedTransactionHash(req.MsgContext[i], hash) {
+				return nil, errors.New("message hash and msg context value not match")
+			}
 		}
+	default:
+		return nil, errors.New("unrecognized chain type")
 	}
 
 	ipPort, err := db.Conn.GetStringValue("select ip_port from accounts_info where public_key = ? and user_account = ? and status = 1", req.PubKey, strings.ToLower(req.Account))
@@ -88,7 +93,7 @@ func doSign(rsv string, msg string) (interface{}, error) {
 		return nil, errors.New("invalid req pub key")
 	}
 	addr := common.PublicKeyBytesToAddress(pubBuf).String()
-	accts, err := db.Conn.GetStructValue("select user_account, enode from accounts_info where public_key = ?", Account{}, req.PubKey)
+	accts, err := db.Conn.GetStructValue("select user_account, enode, ip_port from accounts_info where public_key = ?", Account{}, req.PubKey)
 	if err != nil {
 		db.Conn.Rollback(tx)
 		return nil, errors.New("internal db error" + err.Error())
@@ -99,8 +104,8 @@ func doSign(rsv string, msg string) (interface{}, error) {
 	}
 	for _, acct := range accts {
 		a := acct.(*Account)
-		_, err = db.BatchExecute("insert into signs_detail(key_id, user_account, group_id, threshold, msg_hash, msg_context, public_key, mpc_address, key_type, mode, status, enode) values(?,?,?,?,?,?,?,?,?,?,?,?)",
-			tx, keyID, a.User_account, req.GroupID, req.ThresHold, common.ConvertArrStrToStr(req.MsgHash), common.ConvertArrStrToStr(req.MsgContext), req.PubKey, addr, req.Keytype, req.Mode, 0, a.Enode)
+		_, err = db.BatchExecute("insert into signs_detail(key_id, user_account, group_id, threshold, msg_hash, msg_context, public_key, mpc_address, key_type, mode, status, enode, ip_port) values(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+			tx, keyID, a.User_account, req.GroupID, req.ThresHold, common.ConvertArrStrToStr(req.MsgHash), common.ConvertArrStrToStr(req.MsgContext), req.PubKey, addr, req.Keytype, req.Mode, 0, a.Enode, a.Ip_port)
 		if err != nil {
 			db.Conn.Rollback(tx)
 			return nil, errors.New("internal db error" + err.Error())

@@ -1,5 +1,19 @@
 package jobs
 
+type signCurNodeInfo struct {
+	Account    string   `json:"Account"`
+	GroupID    string   `json:"GroupId"`
+	Key        string   `json:"Key"`
+	KeyType    string   `json:"KeyType"`
+	Mode       string   `json:"Mode"`
+	MsgContext []string `json:"MsgContext"`
+	MsgHash    []string `json:"MsgHash"`
+	Nonce      string   `json:"Nonce"`
+	PubKey     string   `json:"PubKey"`
+	ThresHold  string   `json:"ThresHold"`
+	TimeStamp  string   `json:"TimeStamp"`
+}
+
 type ReqAddrStatus struct {
 	Status    string     `json:"Status"`
 	PubKey    string     `json:"PubKey"`
@@ -52,4 +66,13 @@ type IpData struct {
 	Ip_port      string
 	User_account string
 	Enode        string
+}
+
+type UserAccount struct {
+	User_account string
+	Ip_port      string
+}
+
+type SigningKids struct {
+	Key_id string
 }
