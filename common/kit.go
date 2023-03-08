@@ -150,7 +150,7 @@ func Map2Struct(src map[string]interface{}, destStrct interface{}) {
 			if mvt == "string" && sft == "slice" {
 				_, ok := f.Interface().([]string)
 				if ok {
-					f.Set(reflect.ValueOf(strings.Split(v.(string), ",")))
+					f.Set(reflect.ValueOf(strings.Split(v.(string), "|")))
 				}
 			}
 
