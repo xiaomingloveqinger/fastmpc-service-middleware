@@ -16,6 +16,28 @@ import (
 	"strings"
 )
 
+func getSignHistory(userAccount string) (interface{}, error) {
+	if !common.CheckEthereumAddress(userAccount) {
+		return nil, errors.New("user account is not valid")
+	}
+	l, err := db.Conn.GetStructValue("select * from signs_detail where user_account = ?", SignHistory{}, userAccount)
+	if err != nil {
+		return nil, errors.New("internal db error " + err.Error())
+	}
+	return l, nil
+}
+
+func getApprovalList(userAccount string) (interface{}, error) {
+	if !common.CheckEthereumAddress(userAccount) {
+		return nil, errors.New("user account is not valid")
+	}
+	l, err := db.Conn.GetStructValue("select * from signing_list where user_account = ?", SignCurNodeInfo{}, userAccount)
+	if err != nil {
+		return nil, errors.New("internal db error " + err.Error())
+	}
+	return l, nil
+}
+
 func getUnsigedTransactionHash(unsignedTx string, chain int) (interface{}, error) {
 	var c types.Chain
 	switch types.ChainType(chain) {

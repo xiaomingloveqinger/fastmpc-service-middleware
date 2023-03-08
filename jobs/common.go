@@ -1,6 +1,6 @@
 package jobs
 
-type signCurNodeInfo struct {
+type SignCurNodeInfo struct {
 	Account    string   `json:"Account"`
 	GroupID    string   `json:"GroupId"`
 	Key        string   `json:"Key"`

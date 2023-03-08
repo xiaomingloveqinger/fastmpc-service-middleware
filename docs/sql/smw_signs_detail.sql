@@ -45,6 +45,7 @@ CREATE TABLE `signs_detail` (
   `status` tinyint(2) NOT NULL DEFAULT 0 COMMENT '0:pending , 1 SUCCESS , 2 FAIL, 3 Timeout',
   `error` varchar(512) COLLATE utf8mb4_bin COMMENT 'error message',
   `tip`  varchar(512) COLLATE utf8mb4_bin COMMENT 'tip message',
+  `txid` varchar(128) COLLATE utf8mb4_bin COMMENT 'signing tx id',
   `local_system_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;

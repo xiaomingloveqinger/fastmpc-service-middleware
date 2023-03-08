@@ -1,5 +1,38 @@
 package service
 
+type SignHistory struct {
+	User_account    string
+	Group_id        string
+	Key_id          string
+	Key_type        string
+	Mode            string
+	Msg_context     []string
+	Msg_hash        []string
+	Public_key      string
+	Mpc_address     string
+	Threshold       string
+	Txid            string
+	Status          string
+	Reply_Status    string
+	Reply_Timestamp string
+}
+
+type SignCurNodeInfo struct {
+	User_account string
+	Group_id     string
+	Key_id       string
+	Key_type     string
+	Mode         string
+	Msg_context  []string
+	Msg_hash     []string
+	Nonce        string
+	Public_key   string
+	Mpc_address  string
+	Threshold    string
+	TimeStamp    string
+	Status       int
+}
+
 type account_enode struct {
 	Account string `json:"Account"`
 	Enode   string `json:"Enode"`

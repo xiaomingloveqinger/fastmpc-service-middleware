@@ -155,3 +155,41 @@ func (service *ServiceMiddleWare) GetUnsigedTransactionHash(unsignedTx string, c
 		}
 	}
 }
+
+func (service *ServiceMiddleWare) GetApprovalList(userAccount string) map[string]interface{} {
+	if data, err := getApprovalList(userAccount); err != nil {
+		log.Error("getApprovalList", "error", err.Error())
+		return map[string]interface{}{
+			"Status": "error",
+			"Tip":    "something unexpected happen",
+			"Error":  err.Error(),
+			"Data":   "",
+		}
+	} else {
+		return map[string]interface{}{
+			"Status": "success",
+			"Tip":    "",
+			"Error":  "",
+			"Data":   data,
+		}
+	}
+}
+
+func (service *ServiceMiddleWare) GetSignHistory(userAccount string) map[string]interface{} {
+	if data, err := getSignHistory(userAccount); err != nil {
+		log.Error("getSignHistory", "error", err.Error())
+		return map[string]interface{}{
+			"Status": "error",
+			"Tip":    "something unexpected happen",
+			"Error":  err.Error(),
+			"Data":   "",
+		}
+	} else {
+		return map[string]interface{}{
+			"Status": "success",
+			"Tip":    "",
+			"Error":  "",
+			"Data":   data,
+		}
+	}
+}

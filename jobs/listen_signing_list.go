@@ -32,9 +32,9 @@ func runListenSigningList(acct *UserAccount) {
 	}
 	reqListJSON, _ := common.GetJSONData(reqListRep)
 	log.Info("smpc_getCurNodeSignInfo", "msg", string(reqListJSON))
-	var signing []signCurNodeInfo
+	var signing []SignCurNodeInfo
 	if err = json.Unmarshal(reqListJSON, &signing); err != nil {
-		log.Error("Unmarshal signCurNodeInfo fail:", "msg", err.Error())
+		log.Error("Unmarshal SignCurNodeInfo fail:", "msg", err.Error())
 		return
 	}
 	singingKids, err := db.Conn.GetStructValue("select key_id from signing_list where user_account = ? and ip_port = ?", SigningKids{}, acct.User_account, acct.Ip_port)
