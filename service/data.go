@@ -153,6 +153,14 @@ func doSign(rsv string, msg string) (interface{}, error) {
 		return nil, errors.New("unrecognized chain type")
 	}
 
+	if req.TxType != "SIGN" {
+		return nil, errors.New("tx type must be SIGN")
+	}
+
+	if common.IsSomeOneBlank(req.Nonce, req.PubKey, req.Keytype, req.GroupID, req.ThresHold, req.Mode, req.AcceptTimeOut, req.TimeStamp) {
+		return nil, errors.New("invalid request param")
+	}
+
 	ipPort, err := db.Conn.GetStringValue("select ip_port from accounts_info where public_key = ? and user_account = ? and status = 1", req.PubKey, strings.ToLower(req.Account))
 	if err != nil {
 		return nil, errors.New("internal db error " + err.Error())
@@ -261,6 +269,9 @@ func doKeyGen(rsv string, msg string) (interface{}, error) {
 	err = json.Unmarshal([]byte(msg), &req)
 	if err != nil {
 		return nil, err
+	}
+	if req.TxType == "REQSMPCADDR" {
+		return nil, errors.New("tx type must be REQSMPCADDR")
 	}
 	if req.Mode != "2" {
 		return nil, errors.New("service keygen mod must be 2")
