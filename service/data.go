@@ -57,6 +57,12 @@ func acceptSign(rsv string, msg string) (interface{}, error) {
 		return nil, errors.New("unrecognized chain type")
 	}
 
+	if c, err := db.Conn.GetIntValue("select count(key_id) from signs_detail where key_id = ? and user_account = ? and msg_hash = ? and status = 0", req.Key, strings.ToLower(req.Account), common.ConvertArrStrToStr(req.MsgHash)); err != nil {
+		return nil, errors.New("internal db error " + err.Error())
+	} else if c == 0 {
+		return nil, errors.New("request param invalid")
+	}
+
 	ipPort, err := db.Conn.GetStringValue("select ip_port from signs_detail where key_id = ? and user_account = ?", req.Key, strings.ToLower(req.Account))
 	if err != nil {
 		return nil, errors.New("internal db error " + err.Error())
@@ -272,6 +278,9 @@ func doKeyGen(rsv string, msg string) (interface{}, error) {
 	}
 	if req.TxType == "REQSMPCADDR" {
 		return nil, errors.New("tx type must be REQSMPCADDR")
+	}
+	if common.IsSomeOneBlank(req.Nonce, req.Keytype, req.AcceptTimeOut, req.TimeStamp, req.Sigs) {
+		return nil, errors.New("request param invalid")
 	}
 	if req.Mode != "2" {
 		return nil, errors.New("service keygen mod must be 2")
