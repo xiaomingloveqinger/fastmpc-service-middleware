@@ -20,6 +20,15 @@ import (
 	"time"
 )
 
+func IsSomeOneBlank(s ...string) bool {
+	for _, v := range s {
+		if IsBlank(v) {
+			return true
+		}
+	}
+	return false
+}
+
 func IsBlank(s string) bool {
 	if len(s) == 0 {
 		return true

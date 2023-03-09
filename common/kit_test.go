@@ -8,6 +8,11 @@ import (
 	"testing"
 )
 
+func TestIsSomeOneBlank(t *testing.T) {
+	strArr := []string{"11", " ", "1 "}
+	println(IsSomeOneBlank(strArr...))
+}
+
 func TestIsBlank(t *testing.T) {
 	strArr := []string{"", "   ", " aasdf "}
 	for _, s := range strArr {

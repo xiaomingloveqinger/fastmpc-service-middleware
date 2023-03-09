@@ -1,6 +1,8 @@
 package service
 
-import "github.com/anyswap/FastMulThreshold-DSA/log"
+import (
+	"github.com/anyswap/FastMulThreshold-DSA/log"
+)
 
 type ServiceMiddleWare struct{}
 
@@ -178,6 +180,25 @@ func (service *ServiceMiddleWare) GetApprovalList(userAccount string) map[string
 func (service *ServiceMiddleWare) GetSignHistory(userAccount string) map[string]interface{} {
 	if data, err := getSignHistory(userAccount); err != nil {
 		log.Error("getSignHistory", "error", err.Error())
+		return map[string]interface{}{
+			"Status": "error",
+			"Tip":    "something unexpected happen",
+			"Error":  err.Error(),
+			"Data":   "",
+		}
+	} else {
+		return map[string]interface{}{
+			"Status": "success",
+			"Tip":    "",
+			"Error":  "",
+			"Data":   data,
+		}
+	}
+}
+
+func (service *ServiceMiddleWare) AcceptSign(rsv string, msg string) map[string]interface{} {
+	if data, err := acceptSign(rsv, msg); err != nil {
+		log.Error("acceptSign", "error", err.Error())
 		return map[string]interface{}{
 			"Status": "error",
 			"Tip":    "something unexpected happen",

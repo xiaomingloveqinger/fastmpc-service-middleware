@@ -16,6 +16,77 @@ import (
 	"strings"
 )
 
+func acceptSign(rsv string, msg string) (interface{}, error) {
+	err := common.VerifyAccount(rsv, msg)
+	if err != nil {
+		return nil, err
+	}
+	req := AcceptSignData{}
+	err = json.Unmarshal([]byte(msg), &req)
+	if err != nil {
+		return nil, err
+	}
+	if len(req.MsgHash) != len(req.MsgContext) {
+		return nil, errors.New("message hash and message context length not match")
+	}
+
+	if len(req.MsgHash) == 0 {
+		return nil, errors.New("message hash and message context can not be blank")
+	}
+
+	if common.IsSomeOneBlank(req.Accept, req.Nonce, req.Key, req.TxType, req.TimeStamp) {
+		return nil, errors.New("request param not valid")
+	}
+
+	if req.TxType != "ACCEPTSIGN" {
+		return nil, errors.New("invalid tx type")
+	}
+
+	if req.Accept != "AGREE" && req.Accept != "DISAGREE" {
+		return nil, errors.New("invalid accept value")
+	}
+
+	switch types.ChainType(req.ChainType) {
+	case types.EVM:
+		for i, hash := range req.MsgHash {
+			if !types.EvmChain.ValidateUnsignedTransactionHash(req.MsgContext[i], hash) {
+				return nil, errors.New("message hash and msg context value not match")
+			}
+		}
+	default:
+		return nil, errors.New("unrecognized chain type")
+	}
+
+	ipPort, err := db.Conn.GetStringValue("select ip_port from signs_detail where key_id = ? and user_account = ?", req.Key, strings.ToLower(req.Account))
+	if err != nil {
+		return nil, errors.New("internal db error " + err.Error())
+	}
+	if common.IsBlank(ipPort) {
+		return nil, errors.New("invalid request param can not find ip port")
+	}
+
+	client := ethrpc.New("http://" + ipPort)
+	// send rawTx
+	acceptSignRep, err := client.Call("smpc_acceptSigning", rsv, msg)
+	if err != nil {
+		return nil, err
+	}
+	// get result
+	acceptRet, err := common.GetJSONResult(acceptSignRep)
+	if err != nil {
+		return nil, err
+	}
+	log.Info("smpc_acceptSign: ", "result", acceptRet)
+
+	_, err = db.Conn.CommitOneRow("insert into signs_result(key_type,account,nonce,key_id,msg_hash,msg_context,timestamp,accept) values(?,?,?,?,?,?,?,?)",
+		req.TxType, req.Account, req.Nonce, req.Key, common.ConvertArrStrToStr(req.MsgHash), common.ConvertArrStrToStr(req.MsgContext), req.TimeStamp, req.Accept)
+	if err != nil {
+		return nil, errors.New("internal db error " + err.Error())
+	}
+
+	return acceptRet, nil
+}
+
 func getSignHistory(userAccount string) (interface{}, error) {
 	if !common.CheckEthereumAddress(userAccount) {
 		return nil, errors.New("user account is not valid")

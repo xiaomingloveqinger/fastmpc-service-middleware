@@ -106,3 +106,15 @@ type Account struct {
 	Enode        string
 	Ip_port      string
 }
+
+type AcceptSignData struct {
+	TxType     string   `json:"TxType"`
+	Account    string   `json:"Account"`
+	Nonce      string   `json:"Nonce"`
+	Key        string   `json:"Key"`
+	Accept     string   `json:"Accept"`
+	MsgHash    []string `json:"MsgHash"`
+	MsgContext []string `json:"MsgContext"`
+	TimeStamp  string   `json:"TimeStamp"`
+	ChainType  int      `json:"ChainType"`
+}
