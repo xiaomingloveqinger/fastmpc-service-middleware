@@ -10,6 +10,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -90,10 +91,16 @@ func (dia *Dialect) Rollback(tx *sql.Tx) error {
 
 //Execute data manipulate language already commited no need to commit again
 func (dia *Dialect) CommitOneRow(sql string, args ...interface{}) (int64, error) {
-	log.Info(sql)
+	logStr := sql
 	for _, v := range args {
-		log.Info("query param", "value", v)
+		if _, ok := v.(string); ok {
+			logStr = strings.Replace(logStr, "?", v.(string), 1)
+		}
+		if _, ok := v.(int); ok {
+			logStr = strings.Replace(logStr, "?", strconv.Itoa(v.(int)), 1)
+		}
 	}
+	log.Info(logStr)
 	stmt, err := dia.db.Prepare(sql)
 	if err != nil {
 		return 0, err
@@ -114,10 +121,16 @@ func (dia *Dialect) CommitOneRow(sql string, args ...interface{}) (int64, error)
 
 //BatchExecute batch data manipulate , need use begin to get a tx and rollback or commit this tx
 func BatchExecute(sql string, tx *sql.Tx, params ...interface{}) (int64, error) {
-	log.Info(sql)
+	logStr := sql
 	for _, v := range params {
-		log.Info("query param", "value", v)
+		if _, ok := v.(string); ok {
+			logStr = strings.Replace(logStr, "?", v.(string), 1)
+		}
+		if _, ok := v.(int); ok {
+			logStr = strings.Replace(logStr, "?", strconv.Itoa(v.(int)), 1)
+		}
 	}
+	log.Info(logStr)
 	stmt, err := tx.Prepare(sql)
 	if err != nil {
 		return 0, err
@@ -137,10 +150,16 @@ func BatchExecute(sql string, tx *sql.Tx, params ...interface{}) (int64, error) 
 }
 
 func (dia *Dialect) Query(s string, params ...interface{}) (*list.List, error) {
-	log.Info(s)
+	logStr := s
 	for _, v := range params {
-		log.Info("query param", "value", v)
+		if _, ok := v.(string); ok {
+			logStr = strings.Replace(logStr, "?", v.(string), 1)
+		}
+		if _, ok := v.(int); ok {
+			logStr = strings.Replace(logStr, "?", strconv.Itoa(v.(int)), 1)
+		}
 	}
+	log.Info(logStr)
 	rows, err := dia.db.Query(s, params...)
 	if err != nil {
 		return nil, err
