@@ -66,6 +66,16 @@ func runSignKidStatus(d *SignKids) {
 					log.Warn("reply approver can not be blank " + kid)
 					return
 				}
+				exist, err := db.Conn.GetIntValue("select count(key_id) from signs_detail where key_id = ? and substring(enode, 9, 128) = ? and status != 0", kid, reply.Enode)
+				if err != nil {
+					db.Conn.Rollback(tx)
+					log.Error("internal db error", "error", err.Error())
+					return
+				}
+				if exist > 0 {
+					log.Info("runSignKidStatus already exist record")
+					continue
+				}
 				_, err = db.BatchExecute("update signs_detail set rsv = ? , reply_initializer = ? , reply_status = ? , reply_timestamp = ? , reply_enode = ? , initiator_public_key = ? , error = ? , tip = ? , status = ? where key_id = ? and substring(enode, 9, 128) = ?", tx,
 					common.ConvertArrStrToStr(statusJSON.Rsv), reply.Initiator, reply.Status, reply.TimeStamp, reply.Enode, statusJSON.Initiator, statusJSON.Error, statusJSON.Tip, stat, kid, reply.Enode)
 				if err != nil {
@@ -74,7 +84,7 @@ func runSignKidStatus(d *SignKids) {
 					return
 				}
 			}
-			_, err = db.BatchExecute("update signs_info set status = 1 where kid = ?", tx, kid)
+			_, err = db.BatchExecute("update signs_info set status = 1 where key_id = ?", tx, kid)
 			if err != nil {
 				db.Conn.Rollback(tx)
 				log.Error("internal db error", "error", err.Error())

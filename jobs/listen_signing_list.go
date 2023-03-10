@@ -7,6 +7,7 @@ import (
 	"github.com/anyswap/fastmpc-service-middleware/common"
 	"github.com/anyswap/fastmpc-service-middleware/db"
 	"github.com/onrik/ethrpc"
+	"strings"
 )
 
 func listenSigningList() {
@@ -30,50 +31,52 @@ func runListenSigningList(acct *UserAccount) {
 		log.Error("runListenSigningList", "rpc call", err.Error())
 		return
 	}
-	reqListJSON, _ := common.GetJSONData(reqListRep)
-	log.Info("smpc_getCurNodeSignInfo", "msg", string(reqListJSON))
-	var signing []SignCurNodeInfo
-	if err = json.Unmarshal(reqListJSON, &signing); err != nil {
-		log.Error("Unmarshal SignCurNodeInfo fail:", "msg", err.Error())
-		return
-	}
-	singingKids, err := db.Conn.GetStructValue("select key_id from signing_list where user_account = ? and ip_port = ?", SigningKids{}, acct.User_account, acct.Ip_port)
+	singingKids, err := db.Conn.GetStructValue("select key_id from signing_list where user_account = ? and ip_port = ? and status = 0", SigningKids{}, acct.User_account, acct.Ip_port)
 	if err != nil {
 		log.Error("internal db error " + err.Error())
 		return
 	}
-
 	existed := extractSingingKids(singingKids)
+	reqListJSON, _ := common.GetJSONData(reqListRep)
 
 	tx, err := db.Conn.Begin()
 	if err != nil {
 		log.Error("internal db error " + err.Error())
 		return
 	}
-	for _, ing := range signing {
-		delete(existed, ing.Key)
-		c, err := db.Conn.GetIntValue("select count(key_id) from signing_list where key_id = ? and ip_port = ?", ing.Key, acct.Ip_port)
-		if err != nil {
-			log.Error("internal db error " + err.Error())
-			db.Conn.Rollback(tx)
+	if !strings.EqualFold(string(reqListJSON), "null") {
+		log.Info("smpc_getCurNodeSignInfo", "msg", string(reqListJSON))
+		var signing []SignCurNodeInfo
+		if err = json.Unmarshal(reqListJSON, &signing); err != nil {
+			log.Error("Unmarshal SignCurNodeInfo fail:", "msg", err.Error())
 			return
 		}
-		if c > 0 {
-			continue
-		}
-		pubBuf, err := hex.DecodeString(ing.PubKey)
-		if err != nil {
-			log.Error("invalid public key", "error", err.Error())
-			return
-		}
-		addr := common.PublicKeyBytesToAddress(pubBuf).String()
 
-		_, err = db.BatchExecute("insert into signing_list(user_account, group_id, key_id, key_type, `mode`, msg_context, msg_hash, nonce, public_key,mpc_address, threshold, `timestamp`, ip_port) values(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-			tx, acct.User_account, ing.GroupID, ing.Key, ing.KeyType, ing.Mode, common.ConvertArrStrToStr(ing.MsgContext), common.ConvertArrStrToStr(ing.MsgHash), ing.Nonce, ing.PubKey, addr, ing.ThresHold, ing.TimeStamp, acct.Ip_port)
-		if err != nil {
-			log.Error("internal db error " + err.Error())
-			db.Conn.Rollback(tx)
-			return
+		for _, ing := range signing {
+			delete(existed, ing.Key)
+			c, err := db.Conn.GetIntValue("select count(key_id) from signing_list where key_id = ? and ip_port = ?", ing.Key, acct.Ip_port)
+			if err != nil {
+				log.Error("internal db error " + err.Error())
+				db.Conn.Rollback(tx)
+				return
+			}
+			if c > 0 {
+				continue
+			}
+			pubBuf, err := hex.DecodeString(ing.PubKey)
+			if err != nil {
+				log.Error("invalid public key", "error", err.Error())
+				return
+			}
+			addr := common.PublicKeyBytesToAddress(pubBuf).String()
+
+			_, err = db.BatchExecute("insert into signing_list(user_account, group_id, key_id, key_type, `mode`, msg_context, msg_hash, nonce, public_key,mpc_address, threshold, `timestamp`, ip_port) values(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+				tx, acct.User_account, ing.GroupID, ing.Key, ing.KeyType, ing.Mode, common.ConvertArrStrToStr(ing.MsgContext), common.ConvertArrStrToStr(ing.MsgHash), ing.Nonce, ing.PubKey, addr, ing.ThresHold, ing.TimeStamp, acct.Ip_port)
+			if err != nil {
+				log.Error("internal db error " + err.Error())
+				db.Conn.Rollback(tx)
+				return
+			}
 		}
 	}
 
@@ -81,9 +84,11 @@ func runListenSigningList(acct *UserAccount) {
 	if len(existed) > 0 {
 		for k, _ := range existed {
 			_, err = db.BatchExecute("update signing_list set status = 1 where key_id = ?", tx, k)
-			log.Error("internal db error " + err.Error())
-			db.Conn.Rollback(tx)
-			return
+			if err != nil {
+				log.Error("internal db error " + err.Error())
+				db.Conn.Rollback(tx)
+				return
+			}
 		}
 	}
 	db.Conn.Commit(tx)
