@@ -12,9 +12,9 @@ type SignHistory struct {
 	Mpc_address     string
 	Threshold       string
 	Txid            string
-	Status          string
-	Reply_Status    string
-	Reply_Timestamp string
+	Status          int
+	Reply_status    string
+	Reply_timestamp string
 }
 
 type SignCurNodeInfo struct {
