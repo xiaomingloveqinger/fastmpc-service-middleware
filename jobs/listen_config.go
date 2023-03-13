@@ -16,7 +16,7 @@ type ChainConfig struct {
 }
 
 var (
-	CC map[int]map[int]*ChainConfig
+	CC = make(map[int]map[int]*ChainConfig)
 	Cm sync.RWMutex
 )
 
@@ -30,9 +30,14 @@ func listenConfig() {
 	defer Cm.Unlock()
 	for _, v := range l {
 		c := v.(*ChainConfig)
-		typ := make(map[int]*ChainConfig)
-		typ[c.Chain_id] = c
-		CC[c.Chain_type] = typ
+		if exist, ok := CC[c.Chain_type]; ok {
+			exist[c.Chain_id] = c
+			CC[c.Chain_type] = exist
+		} else {
+			typ := make(map[int]*ChainConfig)
+			typ[c.Chain_id] = c
+			CC[c.Chain_type] = typ
+		}
 	}
 }
 
