@@ -211,8 +211,8 @@ func doSign(rsv string, msg string) (interface{}, error) {
 	}
 	for _, acct := range accts {
 		a := acct.(*Account)
-		_, err = db.BatchExecute("insert into signs_detail(key_id, user_account, group_id, threshold, msg_hash, msg_context, public_key, mpc_address, key_type, mode, status, enode, ip_port) values(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-			tx, keyID, a.User_account, req.GroupID, req.ThresHold, common.ConvertArrStrToStr(req.MsgHash), common.ConvertArrStrToStr(req.MsgContext), req.PubKey, addr, req.Keytype, req.Mode, 0, a.Enode, a.Ip_port)
+		_, err = db.BatchExecute("insert into signs_detail(key_id, user_account, group_id, threshold, msg_hash, msg_context, public_key, mpc_address, key_type, mode, status, enode, ip_port, chain_type) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+			tx, keyID, a.User_account, req.GroupID, req.ThresHold, common.ConvertArrStrToStr(req.MsgHash), common.ConvertArrStrToStr(req.MsgContext), req.PubKey, addr, req.Keytype, req.Mode, 0, a.Enode, a.Ip_port, req.ChainType)
 		if err != nil {
 			db.Conn.Rollback(tx)
 			return nil, errors.New("internal db error" + err.Error())

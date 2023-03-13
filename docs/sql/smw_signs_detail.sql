@@ -46,6 +46,7 @@ CREATE TABLE `signs_detail` (
   `error` varchar(512) COLLATE utf8mb4_bin COMMENT 'error message',
   `tip`  varchar(512) COLLATE utf8mb4_bin COMMENT 'tip message',
   `txid` varchar(128) COLLATE utf8mb4_bin COMMENT 'signing tx id',
+  `chain_type` int COLLATE utf8mb4_bin DEFAULT 0 COMMENT 'chain type',
   `local_system_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
